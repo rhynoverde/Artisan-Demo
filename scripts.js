@@ -1,3 +1,4 @@
+
 // scripts.js
 
 // === CONFIGURATION ===
@@ -204,14 +205,25 @@ function showQRPage() {
 // EVENT LISTENERS
 // =======================
 document.addEventListener('DOMContentLoaded', () => {
-  // Intro buttons
-  document.getElementById('takePhotoButton').addEventListener('click', () => {
+  // Fix: Direct intro button handlers (mobile-friendly)
+  const takeBtn = document.getElementById('takePhotoButton');
+  const uploadBtn = document.getElementById('uploadPhotoButton');
+
+  takeBtn?.addEventListener('click', () => {
     showStep('step2');
-    document.querySelector('#photoOptions .photo-option[data-option="take"]').click();
+    document.getElementById('photoOptions').style.display = 'none';
+    document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
+    document.getElementById('takePhotoSection').style.display = 'block';
+    startCamera();
   });
-  document.getElementById('uploadPhotoButton').addEventListener('click', () => {
+
+  uploadBtn?.addEventListener('click', () => {
     showStep('step2');
-    document.querySelector('#photoOptions .photo-option[data-option="upload"]').click();
+    document.getElementById('photoOptions').style.display = 'none';
+    document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
+    document.getElementById('uploadPhotoSection').style.display = 'block';
+    // Optionally: open file picker automatically
+    // document.getElementById('uploadInput').click();
   });
 
   // Step 2 options
@@ -293,10 +305,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const c = document.createElement('canvas');
       c.width = FINAL_WIDTH; c.height = FINAL_HEIGHT;
       const ctx = c.getContext('2d');
-      const scC = Math.max(FINAL_WIDTH/img.width, FINAL_HEIGHT/img.height);
+      const scC = Math.max(FINAL_WIDTH/img.width, FINAL_HEIGHT<img.height);
       const wC = img.width*scC, hC = img.height*scC;
       const xC = (FINAL_WIDTH-wC)/2, yC = (FINAL_HEIGHT-hC)/2;
-      const scF = Math.min(FINAL_WIDTH/img.width, FINAL_HEIGHT/img.height);
+      const scF = Math.min(FINAL_WIDTH<img.width, FINAL_HEIGHT/img.height);
       const wF = img.width*scF, hF = img.height*scF;
       const xF = (FINAL_WIDTH-wF)/2, yF = (FINAL_HEIGHT-hF)/2;
       if ('filter' in ctx) {
@@ -416,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await navigator.clipboard.writeText(document.getElementById('reviewText').value.trim());
       Swal.fire({ icon:'info', title:'Review copied! Paste it on Google.' })
         .then(() => window.open(
-          'https://search.google.com/local/writereview?placeid=ChIJFRctSC6LMW0Rd0T5nvajzPw',
+          'https://search.google.com/local/writtoreview?placeid=ChIJFRctSC6LMW0Rd0T5nvajzPw',
           '_blank'
         ))
         .then(() => setTimeout(() => showStep('finalOptionsPage'), 1000));
