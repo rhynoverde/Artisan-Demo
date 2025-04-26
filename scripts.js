@@ -50,6 +50,7 @@ function showStep(id) {
   if (id === 'vehicleSharePage') updateShareImage();
 }
 
+// Build the share-image URL with your chosen text + uploaded image URL
 function updateShareImage() {
   let text = document.getElementById('customTextSelect').value;
   if (text === 'custom') {
@@ -62,17 +63,17 @@ function updateShareImage() {
 }
 
 // =======================
-// STAR RATING FUNCTIONS
+// STAR RATING
 // =======================
 function initStarRating() {
   const stars = document.querySelectorAll('#reviewStarRating span');
   stars.forEach(star => {
+    const v = +star.dataset.value;
     star.addEventListener('click', () => {
-      selectedRating = +star.dataset.value;
-      stars.forEach(s => s.classList.toggle('selected', +s.dataset.value <= selectedRating));
+      selectedRating = v;
+      stars.forEach(s => s.classList.toggle('selected', +s.dataset.value <= v));
     });
     star.addEventListener('mouseover', () => {
-      const v = +star.dataset.value;
       stars.forEach(s => s.classList.toggle('selected', +s.dataset.value <= v));
     });
     star.addEventListener('mouseout', () => {
@@ -82,7 +83,7 @@ function initStarRating() {
 }
 
 // =======================
-// CAMERA & IMAGE FUNCTIONS
+// CAMERA & PINCH-ZOOM
 // =======================
 function stopCamera() {
   if (cameraStream) {
@@ -97,7 +98,11 @@ function startCamera() {
   stopCamera();
   const vid = document.getElementById('cameraPreview');
   currentScale = 1;
-  if (vid) vid.style.transform = 'scale(1)';
+  if (vid) {
+    vid.style.transform = 'scale(1)';
+    vid.muted = true;
+    vid.playsInline = true;
+  }
   if (!navigator.mediaDevices?.getUserMedia) {
     alert('Camera not available');
     return;
@@ -139,12 +144,12 @@ function initPinchZoom(video) {
       }
     }
   };
-  ['pointerup','pointercancel'].forEach(evt => {
+  ['pointerup','pointercancel'].forEach(evt =>
     video.addEventListener(evt, e => {
       pointers.delete(e.pointerId);
       if (pointers.size < 2 && zi) zi.style.display = 'none';
-    });
-  });
+    })
+  );
 }
 
 function captureFromCamera() {
@@ -157,10 +162,10 @@ function captureFromCamera() {
   const scale = Math.max(CW/vid.videoWidth, CH/vid.videoHeight);
   const w = vid.videoWidth * scale, h = vid.videoHeight * scale;
   const dx = (CW - w)/2, dy = (CH - h)/2;
-  fctx.drawImage(vid, 0, 0, vid.videoWidth, vid.videoHeight, dx, dy, w, h);
+  fctx.drawImage(vid, 0,0, vid.videoWidth,vid.videoHeight, dx,dy, w,h);
   const cropC = document.createElement('canvas');
   cropC.width = FINAL_WIDTH; cropC.height = FINAL_HEIGHT;
-  cropC.getContext('2d').drawImage(full, 0, 0, CW, CH, 0, 0, FINAL_WIDTH, FINAL_HEIGHT);
+  cropC.getContext('2d').drawImage(full, 0,0, CW,CH, 0,0, FINAL_WIDTH,FINAL_HEIGHT);
   stopCamera();
   uploadToImgbb(cropC.toDataURL('image/jpeg'))
     .then(url => {
@@ -196,51 +201,42 @@ function showQRPage() {
 }
 
 // =======================
-// EVENT LISTENERS SETUP
+// EVENT LISTENERS
 // =======================
 document.addEventListener('DOMContentLoaded', () => {
-  // Intro → Step 2
+  // Intro buttons
   document.getElementById('takePhotoButton').addEventListener('click', () => {
     showStep('step2');
-    document.querySelector('.container').scrollTop = 0;
     document.querySelector('#photoOptions .photo-option[data-option="take"]').click();
   });
   document.getElementById('uploadPhotoButton').addEventListener('click', () => {
     showStep('step2');
-    document.querySelector('.container').scrollTop = 0;
     document.querySelector('#photoOptions .photo-option[data-option="upload"]').click();
   });
 
-  // Step 2 photo-option buttons
-  document.querySelectorAll('#photoOptions .photo-option').forEach(btn => {
+  // Step 2 options
+  document.querySelectorAll('#photoOptions .photo-option').forEach(btn =>
     btn.addEventListener('click', () => {
       document.getElementById('photoOptions').style.display = 'none';
       document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
       const opt = btn.dataset.option;
       if (opt === 'take') {
-        const sec = document.getElementById('takePhotoSection');
-        sec.style.display = 'block';
+        document.getElementById('takePhotoSection').style.display = 'block';
         startCamera();
-        document.getElementById('cameraContainer').scrollIntoView({ behavior: 'smooth' });
       } else if (opt === 'upload') {
-        const sec = document.getElementById('uploadPhotoSection');
-        sec.style.display = 'block';
-        sec.scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('uploadPhotoSection').style.display = 'block';
       } else {
-        const sec = document.getElementById('urlPhotoSection');
-        sec.style.display = 'block';
-        sec.scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('urlPhotoSection').style.display = 'block';
       }
-    });
-  });
+    })
+  );
 
-  // Back to options
+  // Back buttons
   document.querySelectorAll('.backToOptions').forEach(btn =>
     btn.addEventListener('click', () => {
       stopCamera();
       document.getElementById('photoOptions').style.display = 'block';
       document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
-      document.getElementById('photoOptions').scrollIntoView({ behavior: 'smooth' });
     })
   );
 
@@ -248,9 +244,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('uploadInput').addEventListener('change', e => {
     const f = e.target.files[0];
     if (!f) return;
-    const reader = new FileReader();
-    reader.onload = ev => loadImageForCrop(ev.target.result);
-    reader.readAsDataURL(f);
+    const r = new FileReader();
+    r.onload = ev => loadImageForCrop(ev.target.result);
+    r.readAsDataURL(f);
   });
 
   // Paste URL
@@ -277,21 +273,19 @@ document.addEventListener('DOMContentLoaded', () => {
     track.applyConstraints({ advanced: [{ torch: on }] });
   });
 
-  // Crop
+  // Crop & Fit
   document.getElementById('cropButton').addEventListener('click', () => {
     if (!cropper) return;
-    const canvas = cropper.getCroppedCanvas({ width: FINAL_WIDTH, height: FINAL_HEIGHT });
+    const c = cropper.getCroppedCanvas({ width: FINAL_WIDTH, height: FINAL_HEIGHT });
     cropper.destroy();
     cropper = null;
-    uploadToImgbb(canvas.toDataURL('image/jpeg'))
+    uploadToImgbb(c.toDataURL('image/jpeg'))
       .then(url => {
         uploadedVehicleUrl = url;
         showStep('vehicleSharePage');
       })
       .catch(err => alert(err));
   });
-
-  // Fit Entire
   document.getElementById('fitEntireButton').addEventListener('click', () => {
     const img = new Image();
     img.crossOrigin = 'Anonymous';
@@ -299,17 +293,17 @@ document.addEventListener('DOMContentLoaded', () => {
       const c = document.createElement('canvas');
       c.width = FINAL_WIDTH; c.height = FINAL_HEIGHT;
       const ctx = c.getContext('2d');
-      const scC = Math.max(FINAL_WIDTH / img.width, FINAL_HEIGHT / img.height);
-      const wC = img.width * scC, hC = img.height * scC;
-      const xC = (FINAL_WIDTH - wC)/2, yC = (FINAL_HEIGHT - hC)/2;
-      const scF = Math.min(FINAL_WIDTH / img.width, FINAL_HEIGHT / img.height);
-      const wF = img.width * scF, hF = img.height * scF;
-      const xF = (FINAL_WIDTH - wF)/2, yF = (FINAL_HEIGHT - hF)/2;
+      const scC = Math.max(FINAL_WIDTH/img.width, FINAL_HEIGHT/img.height);
+      const wC = img.width*scC, hC = img.height*scC;
+      const xC = (FINAL_WIDTH-wC)/2, yC = (FINAL_HEIGHT-hC)/2;
+      const scF = Math.min(FINAL_WIDTH/img.width, FINAL_HEIGHT/img.height);
+      const wF = img.width*scF, hF = img.height*scF;
+      const xF = (FINAL_WIDTH-wF)/2, yF = (FINAL_HEIGHT-hF)/2;
       if ('filter' in ctx) {
-        ctx.filter = 'blur(40px)'; ctx.drawImage(img, xC, yC, wC, hC);
-        ctx.filter = 'none';       ctx.drawImage(img, xF, yF, wF, hF);
+        ctx.filter = 'blur(40px)'; ctx.drawImage(img, xC,yC,wC,hC);
+        ctx.filter = 'none';       ctx.drawImage(img, xF,yF,wF,hF);
       } else {
-        ctx.drawImage(img, xF, yF, wF, hF);
+        ctx.drawImage(img, xF,yF,wF,hF);
       }
       uploadToImgbb(c.toDataURL('image/jpeg'))
         .then(url => {
@@ -326,16 +320,13 @@ document.addEventListener('DOMContentLoaded', () => {
     stopCamera();
     document.getElementById('photoOptions').style.display = 'block';
     document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
-    document.getElementById('photoOptions').scrollIntoView({ behavior: 'smooth' });
   });
 
-  // === Share Photo button (customized image only) ===
+  // === Share Photo ===
   document.getElementById('shareNowButton').addEventListener('click', async () => {
     const listingLink = 'https://www.etsy.com/listing/1088793681/willow-and-wood-signature-scented-soy';
     try {
-      // Copy link
       await navigator.clipboard.writeText(listingLink);
-      // Show modal
       Swal.fire({
         title: `<strong>Listing Link Saved to Clipboard!</strong>`,
         html: `
@@ -359,8 +350,8 @@ document.addEventListener('DOMContentLoaded', () => {
               const blob = await r.blob();
               const fileType = imgEl.src.endsWith('.png') ? 'image/png' : 'image/jpeg';
               const file = new File([blob], `share.${fileType.split('/')[1]}`, { type: fileType });
-              // Share only the customized image
-              await navigator.share({ files: [file] });
+              // Include the link and the file
+              await navigator.share({ files: [file], text: listingLink });
             } catch (err) {
               console.error('Error sharing via navigator.share', err);
             }
@@ -389,7 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showStep('step2');
   });
 
-  // Review Form Submit
+  // Submit Review Form
   document.getElementById('submitReviewForm').addEventListener('click', () => {
     const val = document.getElementById('reviewText').value.trim();
     if (!val) return alert('Please enter your review.');
@@ -402,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     showStep('vehicleSharePage');
   });
 
-  // Review Share
+  // Share Review Link
   document.getElementById('reviewShareButton').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText('https://GetMy.Deal/MichaelJones');
@@ -419,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStarRating();
   });
 
-  // Google Review (updated placeid)
+  // Google Review
   document.getElementById('googleReviewButton').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(document.getElementById('reviewText').value.trim());
