@@ -1,4 +1,3 @@
-
 // scripts.js
 
 // === CONFIGURATION ===
@@ -51,7 +50,6 @@ function showStep(id) {
   if (id === 'vehicleSharePage') updateShareImage();
 }
 
-// Build the share-image URL with your chosen text + uploaded image URL
 function updateShareImage() {
   let text = document.getElementById('customTextSelect').value;
   if (text === 'custom') {
@@ -112,8 +110,7 @@ function startCamera() {
     .then(stream => {
       cameraStream = stream;
       vid.srcObject = stream;
-      const p = vid.play();
-      if (p && p.catch) p.catch(() => {});
+      vid.play().catch(()=>{});
       initPinchZoom(vid);
     })
     .catch(() => alert('Camera access denied'));
@@ -164,9 +161,11 @@ function captureFromCamera() {
   const w = vid.videoWidth * scale, h = vid.videoHeight * scale;
   const dx = (CW - w)/2, dy = (CH - h)/2;
   fctx.drawImage(vid, 0,0, vid.videoWidth,vid.videoHeight, dx,dy, w,h);
+
   const cropC = document.createElement('canvas');
   cropC.width = FINAL_WIDTH; cropC.height = FINAL_HEIGHT;
   cropC.getContext('2d').drawImage(full, 0,0, CW,CH, 0,0, FINAL_WIDTH,FINAL_HEIGHT);
+
   stopCamera();
   uploadToImgbb(cropC.toDataURL('image/jpeg'))
     .then(url => {
@@ -205,7 +204,7 @@ function showQRPage() {
 // EVENT LISTENERS
 // =======================
 document.addEventListener('DOMContentLoaded', () => {
-  // Fix: Direct intro button handlers (mobile-friendly)
+  // Intro buttons: direct user gesture for camera/file
   const takeBtn = document.getElementById('takePhotoButton');
   const uploadBtn = document.getElementById('uploadPhotoButton');
 
@@ -222,11 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('photoOptions').style.display = 'none';
     document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
     document.getElementById('uploadPhotoSection').style.display = 'block';
-    // Optionally: open file picker automatically
+    // Optionally open file picker immediately:
     // document.getElementById('uploadInput').click();
   });
 
-  // Step 2 options
+  // Step 2 photo-option buttons
   document.querySelectorAll('#photoOptions .photo-option').forEach(btn =>
     btn.addEventListener('click', () => {
       document.getElementById('photoOptions').style.display = 'none';
@@ -243,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   );
 
-  // Back buttons
+  // Back to options
   document.querySelectorAll('.backToOptions').forEach(btn =>
     btn.addEventListener('click', () => {
       stopCamera();
@@ -274,7 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Swap / Flash
   document.getElementById('swapCamera').addEventListener('click', () => {
     currentCamera = currentCamera === 'environment' ? 'user' : 'environment';
-    stopCamera();
     startCamera();
   });
   document.getElementById('flashToggle').addEventListener('click', e => {
@@ -305,10 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const c = document.createElement('canvas');
       c.width = FINAL_WIDTH; c.height = FINAL_HEIGHT;
       const ctx = c.getContext('2d');
-      const scC = Math.max(FINAL_WIDTH/img.width, FINAL_HEIGHT<img.height);
+      const scC = Math.max(FINAL_WIDTH/img.width, FINAL_HEIGHT/img.height);
       const wC = img.width*scC, hC = img.height*scC;
       const xC = (FINAL_WIDTH-wC)/2, yC = (FINAL_HEIGHT-hC)/2;
-      const scF = Math.min(FINAL_WIDTH<img.width, FINAL_HEIGHT/img.height);
+      const scF = Math.min(FINAL_WIDTH/img.width, FINAL_HEIGHT/img.height);
       const wF = img.width*scF, hF = img.height*scF;
       const xF = (FINAL_WIDTH-wF)/2, yF = (FINAL_HEIGHT-hF)/2;
       if ('filter' in ctx) {
@@ -334,7 +332,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
   });
 
-  // === Share Photo ===
+  // Share Photo
   document.getElementById('shareNowButton').addEventListener('click', async () => {
     const listingLink = 'https://www.etsy.com/listing/1088793681/willow-and-wood-signature-scented-soy';
     try {
@@ -353,20 +351,15 @@ document.addEventListener('DOMContentLoaded', () => {
         showCancelButton: true,
         confirmButtonText: 'Got it!',
         cancelButtonText: 'More Instructions'
-      }).then(async (result) => {
+      }).then(async result => {
         if (result.isConfirmed && navigator.share) {
           const imgEl = document.getElementById('vehicleShareImage');
           if (imgEl && imgEl.src) {
-            try {
-              const r = await fetch(imgEl.src);
-              const blob = await r.blob();
-              const fileType = imgEl.src.endsWith('.png') ? 'image/png' : 'image/jpeg';
-              const file = new File([blob], `share.${fileType.split('/')[1]}`, { type: fileType });
-              // Include the link and the file
-              await navigator.share({ files: [file], text: listingLink });
-            } catch (err) {
-              console.error('Error sharing via navigator.share', err);
-            }
+            const res = await fetch(imgEl.src);
+            const blob = await res.blob();
+            const fileType = imgEl.src.endsWith('.png') ? 'image/png' : 'image/jpeg';
+            const file = new File([blob], `share.${fileType.split('/')[1]}`, { type: fileType });
+            await navigator.share({ files: [file], text: listingLink });
           }
         }
       });
@@ -383,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   document.getElementById('applyTextButton').addEventListener('click', updateShareImage);
 
-  // Forward / Back from Share
+  // Forward & Back
   document.getElementById('forwardFromVehicleShare').addEventListener('click', () => {
     showStep('reviewFormPage');
     initStarRating();
@@ -428,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await navigator.clipboard.writeText(document.getElementById('reviewText').value.trim());
       Swal.fire({ icon:'info', title:'Review copied! Paste it on Google.' })
         .then(() => window.open(
-          'https://search.google.com/local/writtoreview?placeid=ChIJFRctSC6LMW0Rd0T5nvajzPw',
+          'https://search.google.com/local/writereview?placeid=ChIJFRctSC6LMW0Rd0T5nvajzPw',
           '_blank'
         ))
         .then(() => setTimeout(() => showStep('finalOptionsPage'), 1000));
