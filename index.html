@@ -54,7 +54,13 @@
         <!-- Take Photo Section -->
         <div id="takePhotoSection" class="photo-section" style="display:none;">
           <div id="cameraContainer">
-            <video id="cameraPreview" autoplay playsinline></video>
+            <video
+              id="cameraPreview"
+              autoplay
+              playsinline
+              webkit-playsinline
+              muted
+            ></video>
             <div id="cameraOverlay"><div class="hole"></div></div>
             <div id="zoomIndicator" class="zoom-indicator" style="display:none;">Zooming...</div>
           </div>

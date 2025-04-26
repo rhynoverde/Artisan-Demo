@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('#photoOptions .photo-option[data-option="upload"]').click();
   });
 
-  // Step 2 options
+  // Step 2 photo-option buttons
   document.querySelectorAll('#photoOptions .photo-option').forEach(btn => {
     btn.addEventListener('click', () => {
       document.getElementById('photoOptions').style.display = 'none';
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(err => alert(err));
     };
-    img.src = uploadedVehicleUrl; // use last image
+    img.src = uploadedVehicleUrl;
   });
 
   // Change Photo
@@ -338,6 +338,25 @@ document.addEventListener('DOMContentLoaded', () => {
         showCancelButton: true,
         confirmButtonText: 'Got it!',
         cancelButtonText: 'More Instructions'
+      }).then(async (result) => {
+        if (result.isConfirmed && navigator.share) {
+          const imgEl = document.getElementById('vehicleShareImage');
+          if (imgEl && imgEl.src) {
+            try {
+              const r = await fetch(imgEl.src);
+              const blob = await r.blob();
+              const fileType = imgEl.src.endsWith('.png') ? 'image/png' : 'image/jpeg';
+              const file = new File([blob], `photo.${fileType.split('/')[1]}`, { type: fileType });
+              await navigator.share({
+                files: [file],
+                url: listingLink,
+                text: listingLink
+              });
+            } catch (err) {
+              console.error('Error sharing via navigator.share', err);
+            }
+          }
+        }
       });
     } catch {
       alert('Failed to copy link');
