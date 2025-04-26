@@ -159,6 +159,11 @@
         </div>
         <textarea id="reviewText" placeholder="Write your review here (max 130 characters)" maxlength="130"></textarea>
         <div id="charCount">130 characters left</div>
+
+        <!-- moved name field below -->
+        <label for="reviewerName">Name (first or first and last or a nickname if you would like)*</label>
+        <input type="text" id="reviewerName" placeholder="Name (first or first and last or a nickname if you would like)*" required />
+
         <button type="button" id="submitReviewForm">Create Review Share Image</button>
         <button type="button" id="backFromReviewForm">← Back</button>
       </div>
@@ -171,7 +176,7 @@
         <div class="share-image-container">
           <img id="reviewShareImage" src="" alt="Review Share Image" />
         </div>
-        <button type="button" id="reviewShareButton" class="share-button">Share My Review Link</button>
+        <button type="button" id="reviewShareButton" class="share-button">Share My Review</button>
         <button type="button" id="forwardFromReviewShare" class="advance-btn">I already shared this &gt; Forward</button>
         <button type="button" id="backFromReviewShare">← Back</button>
       </div>
@@ -234,7 +239,7 @@
   </div>
 
   <footer id="pageFooter">
-    <span class="footer-version">Version d-3.0.6</span>
+    <span class="footer-version">Version d-3.0.10</span>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
