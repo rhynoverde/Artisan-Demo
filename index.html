@@ -51,18 +51,11 @@
           </button>
         </div>
 
-        <!-- Take Photo Section -->
         <div id="takePhotoSection" class="photo-section" style="display:none;">
           <div id="cameraContainer">
-            <video
-              id="cameraPreview"
-              autoplay
-              playsinline
-              webkit-playsinline
-              muted
-            ></video>
+            <video id="cameraPreview" autoplay playsinline webkit-playsinline muted></video>
             <div id="cameraOverlay"><div class="hole"></div></div>
-            <div id="zoomIndicator" class="zoom-indicator" style="display:none;">Zooming...</div>
+            <div id="zoomIndicator" class="zoom-indicator" style="display:none;">Zooming…</div>
           </div>
           <div class="camera-controls">
             <button type="button" id="swapCamera" class="icon-btn">↺</button>
@@ -71,7 +64,6 @@
           </div>
         </div>
 
-        <!-- Upload Photo Section -->
         <div id="uploadPhotoSection" class="photo-section" style="display:none;">
           <p>Please choose a photo to upload:</p>
           <input type="file" id="uploadInput" accept="image/*" />
@@ -79,7 +71,6 @@
           <button type="button" class="backToOptions">← Back</button>
         </div>
 
-        <!-- Paste URL Section -->
         <div id="urlPhotoSection" class="photo-section" style="display:none;">
           <p>Please enter the image URL:</p>
           <label for="imageUrlInput" class="input-label">Image URL</label>
@@ -88,7 +79,6 @@
           <button type="button" class="backToOptions">← Back</button>
         </div>
 
-        <!-- Cropping Section -->
         <div id="cropSection" class="photo-section" style="display:none;">
           <p>Adjust the photo if needed.</p>
           <div id="cropContainer">
@@ -160,9 +150,9 @@
         <textarea id="reviewText" placeholder="Write your review here (max 130 characters)" maxlength="130"></textarea>
         <div id="charCount">130 characters left</div>
 
-        <!-- moved name field below -->
-        <label for="reviewerName">Name (first or first and last or a nickname if you would like)*</label>
-        <input type="text" id="reviewerName" placeholder="Name (first or first and last or a nickname if you would like)*" required />
+        <!-- name label & enlarged input on its own line -->
+        <label for="reviewerName">Name (first or brief nickname)*</label>
+        <input type="text" id="reviewerName" required />
 
         <button type="button" id="submitReviewForm">Create Review Share Image</button>
         <button type="button" id="backFromReviewForm">← Back</button>
@@ -200,16 +190,16 @@
         <p>If you would like to post or save your share images or review anywhere else, here they are:</p>
         <div class="accordion">
           <details>
-            <summary>Vehicle Share Image</summary>
+            <summary>Product Share Image</summary>
             <div class="share-image-container accordion-content">
-              <img id="finalVehicleShareImage" src="" alt="Final Vehicle Share Image" />
-              <button type="button" id="shareVehicleFinalButton" class="share-button">Share Vehicle Image</button>
+              <img id="finalVehicleShareImage" src="" alt="Final Product Share" />
+              <button type="button" id="shareVehicleFinalButton" class="share-button">Share Product Image</button>
             </div>
           </details>
           <details>
             <summary>Review Share Image</summary>
             <div class="share-image-container accordion-content">
-              <img id="finalReviewShareImage" src="" alt="Final Review Share Image" />
+              <img id="finalReviewShareImage" src="" alt="Final Review Share" />
               <button type="button" id="shareReviewFinalButton" class="share-button">Share Review Image</button>
             </div>
           </details>
@@ -239,7 +229,7 @@
   </div>
 
   <footer id="pageFooter">
-    <span class="footer-version">Version d-3.0.10</span>
+    <span class="footer-version">Version d-3.0.11</span>
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
