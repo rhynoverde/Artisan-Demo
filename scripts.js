@@ -34,7 +34,8 @@ async function uploadToImgbb(dataUrl) {
   form.append('image', base64);
   form.append('key', IMGBB_API_KEY);
   const res = await fetch('https://api.imgbb.com/1/upload', {
-    method: 'POST', body: form
+    method: 'POST',
+    body: form
   });
   if (!res.ok) throw new Error('Upload failed: ' + await res.text());
   const json = await res.json();
@@ -46,16 +47,13 @@ function showStep(id) {
   const el = document.getElementById(id);
   if (!el) return;
   el.classList.add('active');
-  if (id === 'vehicleSharePage') {
-    updateShareImage();
-  }
+  if (id === 'vehicleSharePage') updateShareImage();
 }
 
 function updateShareImage() {
-  const select = document.getElementById('customTextSelect');
-  let text = select.value;
+  let text = document.getElementById('customTextSelect').value;
   if (text === 'custom') {
-    text = document.getElementById('customTextInput').value.trim().slice(0, 20);
+    text = document.getElementById('customTextInput').value.trim().slice(0,20);
   }
   const params = new URLSearchParams();
   params.append('custom_text_1', text);
@@ -64,7 +62,7 @@ function updateShareImage() {
 }
 
 // =======================
-// STAR RATING
+// STAR RATING FUNCTIONS
 // =======================
 function initStarRating() {
   const stars = document.querySelectorAll('#reviewStarRating span');
@@ -84,7 +82,7 @@ function initStarRating() {
 }
 
 // =======================
-// CAMERA & CROPPER
+// CAMERA & IMAGE FUNCTIONS
 // =======================
 function stopCamera() {
   if (cameraStream) {
@@ -92,9 +90,7 @@ function stopCamera() {
     cameraStream = null;
   }
   const vid = document.getElementById('cameraPreview');
-  if (vid && vid.srcObject) {
-    vid.srcObject = null;
-  }
+  if (vid) vid.srcObject = null;
 }
 
 function startCamera() {
@@ -110,10 +106,8 @@ function startCamera() {
     .then(stream => {
       cameraStream = stream;
       vid.srcObject = stream;
-      const playPromise = vid.play();
-      if (playPromise && playPromise.catch) {
-        playPromise.catch(() => {/* ignore */});
-      }
+      const p = vid.play();
+      if (p && p.catch) p.catch(() => {});
       initPinchZoom(vid);
     })
     .catch(() => alert('Camera access denied'));
@@ -160,9 +154,9 @@ function captureFromCamera() {
   const full = document.createElement('canvas');
   full.width = CW; full.height = CH;
   const fctx = full.getContext('2d');
-  const scale = Math.max(CW / vid.videoWidth, CH / vid.videoHeight);
+  const scale = Math.max(CW/vid.videoWidth, CH/vid.videoHeight);
   const w = vid.videoWidth * scale, h = vid.videoHeight * scale;
-  const dx = (CW - w) / 2, dy = (CH - h) / 2;
+  const dx = (CW - w)/2, dy = (CH - h)/2;
   fctx.drawImage(vid, 0, 0, vid.videoWidth, vid.videoHeight, dx, dy, w, h);
   const cropC = document.createElement('canvas');
   cropC.width = FINAL_WIDTH; cropC.height = FINAL_HEIGHT;
@@ -176,7 +170,7 @@ function captureFromCamera() {
     .catch(err => alert(err));
 }
 
-function loadImageForCrop(src, isUrl = false) {
+function loadImageForCrop(src, isUrl=false) {
   const img = document.getElementById('cropImage');
   if (isUrl) img.crossOrigin = 'Anonymous';
   img.src = src;
@@ -205,19 +199,19 @@ function showQRPage() {
 // EVENT LISTENERS SETUP
 // =======================
 document.addEventListener('DOMContentLoaded', () => {
-  // Step1 → Step2
-  document.getElementById('takePhotoButton').onclick = () => {
+  // Intro → Step 2
+  document.getElementById('takePhotoButton').addEventListener('click', () => {
     showStep('step2');
-    document.querySelector('.photo-option[data-option="take"]').click();
-  };
-  document.getElementById('uploadPhotoButton').onclick = () => {
+    document.querySelector('#photoOptions .photo-option[data-option="take"]').click();
+  });
+  document.getElementById('uploadPhotoButton').addEventListener('click', () => {
     showStep('step2');
-    document.querySelector('.photo-option[data-option="upload"]').click();
-  };
+    document.querySelector('#photoOptions .photo-option[data-option="upload"]').click();
+  });
 
-  // Photo Options
-  document.querySelectorAll('.photo-option').forEach(btn => {
-    btn.onclick = () => {
+  // Step 2 options
+  document.querySelectorAll('#photoOptions .photo-option').forEach(btn => {
+    btn.addEventListener('click', () => {
       document.getElementById('photoOptions').style.display = 'none';
       document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
       const opt = btn.dataset.option;
@@ -229,65 +223,67 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         document.getElementById('urlPhotoSection').style.display = 'block';
       }
-    };
+    });
   });
 
-  // Back to Options
-  document.querySelectorAll('.backToOptions').forEach(btn => {
-    btn.onclick = () => {
+  // Back to options
+  document.querySelectorAll('.backToOptions').forEach(btn =>
+    btn.addEventListener('click', () => {
       stopCamera();
       document.getElementById('photoOptions').style.display = 'block';
       document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
-    };
-  });
+    })
+  );
 
-  // Upload File
-  document.getElementById('uploadInput').onchange = e => {
+  // File upload
+  document.getElementById('uploadInput').addEventListener('change', e => {
     const f = e.target.files[0];
     if (!f) return;
-    const r = new FileReader();
-    r.onload = ev => loadImageForCrop(ev.target.result);
-    r.readAsDataURL(f);
-  };
+    const reader = new FileReader();
+    reader.onload = ev => loadImageForCrop(ev.target.result);
+    reader.readAsDataURL(f);
+  });
 
   // Paste URL
-  document.getElementById('loadUrlImage').onclick = () => {
+  document.getElementById('loadUrlImage').addEventListener('click', () => {
     const url = document.getElementById('imageUrlInput').value.trim();
     if (!url) return alert('Please enter a valid URL.');
     loadImageForCrop(url, true);
-  };
+  });
 
   // Capture
-  document.getElementById('capturePhoto').onclick = captureFromCamera;
+  document.getElementById('capturePhoto').addEventListener('click', captureFromCamera);
 
-  // Swap & Flash
-  document.getElementById('swapCamera').onclick = () => {
+  // Swap / Flash
+  document.getElementById('swapCamera').addEventListener('click', () => {
     currentCamera = currentCamera === 'environment' ? 'user' : 'environment';
-    stopCamera(); startCamera();
-  };
-  document.getElementById('flashToggle').onclick = e => {
+    stopCamera();
+    startCamera();
+  });
+  document.getElementById('flashToggle').addEventListener('click', e => {
     if (!cameraStream) return;
     const track = cameraStream.getVideoTracks()[0];
     if (!track.getCapabilities().torch) return;
     const on = e.currentTarget.classList.toggle('flash-on');
     track.applyConstraints({ advanced: [{ torch: on }] });
-  };
+  });
 
   // Crop
-  document.getElementById('cropButton').onclick = () => {
+  document.getElementById('cropButton').addEventListener('click', () => {
     if (!cropper) return;
     const canvas = cropper.getCroppedCanvas({ width: FINAL_WIDTH, height: FINAL_HEIGHT });
-    cropper.destroy(); cropper = null;
+    cropper.destroy();
+    cropper = null;
     uploadToImgbb(canvas.toDataURL('image/jpeg'))
       .then(url => {
         uploadedVehicleUrl = url;
         showStep('vehicleSharePage');
       })
       .catch(err => alert(err));
-  };
+  });
 
   // Fit Entire
-  document.getElementById('fitEntireButton').onclick = () => {
+  document.getElementById('fitEntireButton').addEventListener('click', () => {
     const img = new Image();
     img.crossOrigin = 'Anonymous';
     img.onload = () => {
@@ -296,10 +292,10 @@ document.addEventListener('DOMContentLoaded', () => {
       const ctx = c.getContext('2d');
       const scC = Math.max(FINAL_WIDTH / img.width, FINAL_HEIGHT / img.height);
       const wC = img.width * scC, hC = img.height * scC;
-      const xC = (FINAL_WIDTH - wC) / 2, yC = (FINAL_HEIGHT - hC) / 2;
+      const xC = (FINAL_WIDTH - wC)/2, yC = (FINAL_HEIGHT - hC)/2;
       const scF = Math.min(FINAL_WIDTH / img.width, FINAL_HEIGHT / img.height);
       const wF = img.width * scF, hF = img.height * scF;
-      const xF = (FINAL_WIDTH - wF) / 2, yF = (FINAL_HEIGHT - hF) / 2;
+      const xF = (FINAL_WIDTH - wF)/2, yF = (FINAL_HEIGHT - hF)/2;
       if ('filter' in ctx) {
         ctx.filter = 'blur(40px)'; ctx.drawImage(img, xC, yC, wC, hC);
         ctx.filter = 'none';       ctx.drawImage(img, xF, yF, wF, hF);
@@ -313,65 +309,90 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .catch(err => alert(err));
     };
-    img.src = croppedDataUrl || img.src;
-  };
+    img.src = uploadedVehicleUrl; // use last image
+  });
 
   // Change Photo
-  document.getElementById('changePhoto').onclick = () => {
+  document.getElementById('changePhoto').addEventListener('click', () => {
     stopCamera();
     document.getElementById('photoOptions').style.display = 'block';
     document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
-  };
+  });
 
-  // Vehicle Share Controls
-  document.getElementById('shareNowButton').onclick = async () => {
+  // === UPDATED: Share Photo button ===
+  document.getElementById('shareNowButton').addEventListener('click', async () => {
+    const listingLink = 'https://www.etsy.com/listing/1088793681/willow-and-wood-signature-scented-soy';
     try {
-      await navigator.clipboard.writeText("https://GetMy.Deal/MichaelJones");
-      Swal.fire({ icon:'success', title:'Link copied!' });
+      await navigator.clipboard.writeText(listingLink);
+      Swal.fire({
+        title: `<strong>Listing Link Saved to Clipboard!</strong>`,
+        html: `
+          <p>Your listing link has been copied to your clipboard; simply paste it in your post or story.</p>
+          <ul style="text-align: left;">
+            <li>😊 Paste it as a sticker in your Instagram Story.</li>
+            <li>😃 Paste it as a comment on your Facebook post.</li>
+            <li>😁 Use it in your TikTok bio.</li>
+          </ul>
+        `,
+        icon: 'success',
+        showCancelButton: true,
+        confirmButtonText: 'Got it!',
+        cancelButtonText: 'More Instructions'
+      });
     } catch {
-      alert("Failed to copy link");
+      alert('Failed to copy link');
     }
-  };
-  document.getElementById('customTextSelect').onchange = () => {
+  });
+
+  // Customize Text
+  document.getElementById('customTextSelect').addEventListener('change', () => {
     const isCustom = document.getElementById('customTextSelect').value === 'custom';
     document.getElementById('customTextInput').style.display = isCustom ? 'block' : 'none';
     updateShareImage();
-  };
-  document.getElementById('applyTextButton').onclick = updateShareImage;
-  document.getElementById('forwardFromVehicleShare').onclick = () => {
+  });
+  document.getElementById('applyTextButton').addEventListener('click', updateShareImage);
+
+  // Forward / Back from Share
+  document.getElementById('forwardFromVehicleShare').addEventListener('click', () => {
     showStep('reviewFormPage');
     initStarRating();
-  };
-  document.getElementById('backFromVehicleShare').onclick = () => showStep('step2');
+  });
+  document.getElementById('backFromVehicleShare').addEventListener('click', () => {
+    showStep('step2');
+  });
 
-  // Review Form
-  document.getElementById('submitReviewForm').onclick = () => {
+  // Review Form Submit
+  document.getElementById('submitReviewForm').addEventListener('click', () => {
     const val = document.getElementById('reviewText').value.trim();
-    if (!val) return alert("Please enter your review.");
+    if (!val) return alert('Please enter your review.');
     userReview = val;
     document.getElementById('reviewShareImage').src =
       `https://my.reviewshare.pics/i/pGdj8g8st.png?first_name=&job_title=${encodeURIComponent(val)}`;
     showStep('reviewSharePage');
-  };
-  document.getElementById('backFromReviewForm').onclick = () => showStep('vehicleSharePage');
+  });
+  document.getElementById('backFromReviewForm').addEventListener('click', () => {
+    showStep('vehicleSharePage');
+  });
 
   // Review Share
-  document.getElementById('reviewShareButton').onclick = async () => {
+  document.getElementById('reviewShareButton').addEventListener('click', async () => {
     try {
-      await navigator.clipboard.writeText("https://GetMy.Deal/MichaelJones");
+      await navigator.clipboard.writeText('https://GetMy.Deal/MichaelJones');
       Swal.fire({ icon:'success', title:'Link copied!' });
     } catch {
-      alert("Failed to copy link");
+      alert('Failed to copy link');
     }
-  };
-  document.getElementById('forwardFromReviewShare').onclick = () => showStep('googleReviewPage');
-  document.getElementById('backFromReviewShare').onclick = () => {
+  });
+  document.getElementById('forwardFromReviewShare').addEventListener('click', () => {
+    showStep('googleReviewPage');
+  });
+  document.getElementById('backFromReviewShare').addEventListener('click', () => {
     showStep('reviewFormPage');
     initStarRating();
-  };
+  });
 
   // Google Review
-  document.getElementById('googleReviewButton').onclick = async () => {
+  document.getElementById('googleReviewButton').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(document.getElementById('reviewText').value.trim());
       Swal.fire({ icon:'info', title:'Review copied! Paste it on Google.' })
@@ -381,33 +402,53 @@ document.addEventListener('DOMContentLoaded', () => {
         ))
         .then(() => setTimeout(() => showStep('finalOptionsPage'), 1000));
     } catch {
-      alert("Failed to copy review");
+      alert('Failed to copy review');
     }
-  };
-  document.getElementById('backFromGoogleReview').onclick = () => showStep('reviewSharePage');
-  document.getElementById('forwardFromGoogleReview').onclick = () => showStep('finalOptionsPage');
+  });
+  document.getElementById('backFromGoogleReview').addEventListener('click', () => {
+    showStep('reviewSharePage');
+  });
+  document.getElementById('forwardFromGoogleReview').addEventListener('click', () => {
+    showStep('finalOptionsPage');
+  });
 
   // Final Options
-  document.getElementById('textLinkFinal').onclick = () => alert("Text sent! Link: https://GetMy.Deal/MichaelJones");
-  document.getElementById('emailLinkFinal').onclick = () => alert("Email sent! Link: https://GetMy.Deal/MichaelJones");
-  document.getElementById('backFromFinalOptions').onclick = () => showStep('googleReviewPage');
-  document.getElementById('shareVehicleFinalButton').onclick = async () => {
+  document.getElementById('shareVehicleFinalButton').addEventListener('click', async () => {
     try {
-      await navigator.clipboard.writeText("https://GetMy.Deal/MichaelJones");
+      await navigator.clipboard.writeText('https://GetMy.Deal/MichaelJones');
       Swal.fire({ icon:'success', title:'Link copied!' });
     } catch {
-      alert("Failed to copy link");
+      alert('Failed to copy link');
     }
-  };
-  document.getElementById('shareReviewFinalButton').onclick = async () => {
+  });
+  document.getElementById('shareReviewFinalButton').addEventListener('click', async () => {
     try {
-      await navigator.clipboard.writeText("https://GetMy.Deal/MichaelJones");
+      await navigator.clipboard.writeText('https://GetMy.Deal/MichaelJones');
       Swal.fire({ icon:'success', title:'Link copied!' });
     } catch {
-      alert("Failed to copy link");
+      alert('Failed to copy link');
     }
-  };
+  });
+  document.getElementById('copyReviewText').addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(document.getElementById('finalReviewText').value.trim());
+      Swal.fire({ icon:'success', title:'Review text copied!' });
+    } catch {
+      alert('Failed to copy text');
+    }
+  });
+  document.getElementById('textLinkFinal').addEventListener('click', () => {
+    alert('Text sent! Link: https://GetMy.Deal/MichaelJones');
+  });
+  document.getElementById('emailLinkFinal').addEventListener('click', () => {
+    alert('Email sent! Link: https://GetMy.Deal/MichaelJones');
+  });
+  document.getElementById('backFromFinalOptions').addEventListener('click', () => {
+    showStep('googleReviewPage');
+  });
 
-  // QR Page Back
-  document.getElementById('backFromQR').onclick = () => showStep('vehicleSharePage');
+  // QR Back
+  document.getElementById('backFromQR').addEventListener('click', () => {
+    showStep('vehicleSharePage');
+  });
 });
