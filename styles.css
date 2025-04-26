@@ -47,8 +47,9 @@ body {
   margin-bottom: 60px;
 }
 
-/* Business Intro */
-.business-info {
+/* Business & Review Headers */
+.business-info,
+.form-section .business-images {
   text-align: center;
   padding: 30px 20px;
 }
@@ -114,15 +115,13 @@ button {
 button:hover { background-color: #854b9e; }
 button:active { background-color: #6b3b84; }
 
-/* Small “Apply” button */
+/* Small & Advance Buttons */
 .small-btn {
   width: auto;
   padding: 8px 12px;
   font-size: 14px;
   margin-top: 8px;
 }
-
-/* Advance button */
 .advance-btn {
   background: #555;
 }

@@ -202,10 +202,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // Intro → Step 2
   document.getElementById('takePhotoButton').addEventListener('click', () => {
     showStep('step2');
+    document.querySelector('.container').scrollTop = 0;
     document.querySelector('#photoOptions .photo-option[data-option="take"]').click();
   });
   document.getElementById('uploadPhotoButton').addEventListener('click', () => {
     showStep('step2');
+    document.querySelector('.container').scrollTop = 0;
     document.querySelector('#photoOptions .photo-option[data-option="upload"]').click();
   });
 
@@ -216,12 +218,18 @@ document.addEventListener('DOMContentLoaded', () => {
       document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
       const opt = btn.dataset.option;
       if (opt === 'take') {
-        document.getElementById('takePhotoSection').style.display = 'block';
+        const sec = document.getElementById('takePhotoSection');
+        sec.style.display = 'block';
         startCamera();
+        document.getElementById('cameraContainer').scrollIntoView({ behavior: 'smooth' });
       } else if (opt === 'upload') {
-        document.getElementById('uploadPhotoSection').style.display = 'block';
+        const sec = document.getElementById('uploadPhotoSection');
+        sec.style.display = 'block';
+        sec.scrollIntoView({ behavior: 'smooth' });
       } else {
-        document.getElementById('urlPhotoSection').style.display = 'block';
+        const sec = document.getElementById('urlPhotoSection');
+        sec.style.display = 'block';
+        sec.scrollIntoView({ behavior: 'smooth' });
       }
     });
   });
@@ -232,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
       stopCamera();
       document.getElementById('photoOptions').style.display = 'block';
       document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
+      document.getElementById('photoOptions').scrollIntoView({ behavior: 'smooth' });
     })
   );
 
@@ -317,17 +326,20 @@ document.addEventListener('DOMContentLoaded', () => {
     stopCamera();
     document.getElementById('photoOptions').style.display = 'block';
     document.querySelectorAll('.photo-section').forEach(s => s.style.display = 'none');
+    document.getElementById('photoOptions').scrollIntoView({ behavior: 'smooth' });
   });
 
-  // === UPDATED: Share Photo button ===
+  // === Share Photo button (customized image only) ===
   document.getElementById('shareNowButton').addEventListener('click', async () => {
     const listingLink = 'https://www.etsy.com/listing/1088793681/willow-and-wood-signature-scented-soy';
     try {
+      // Copy link
       await navigator.clipboard.writeText(listingLink);
+      // Show modal
       Swal.fire({
         title: `<strong>Listing Link Saved to Clipboard!</strong>`,
         html: `
-          <p>Your listing link has been copied to your clipboard; simply paste it in your post or story.</p>
+          <p>Your listing link has been copied—now share your customized photo!</p>
           <ul style="text-align: left;">
             <li>😊 Paste it as a sticker in your Instagram Story.</li>
             <li>😃 Paste it as a comment on your Facebook post.</li>
@@ -346,12 +358,9 @@ document.addEventListener('DOMContentLoaded', () => {
               const r = await fetch(imgEl.src);
               const blob = await r.blob();
               const fileType = imgEl.src.endsWith('.png') ? 'image/png' : 'image/jpeg';
-              const file = new File([blob], `photo.${fileType.split('/')[1]}`, { type: fileType });
-              await navigator.share({
-                files: [file],
-                url: listingLink,
-                text: listingLink
-              });
+              const file = new File([blob], `share.${fileType.split('/')[1]}`, { type: fileType });
+              // Share only the customized image
+              await navigator.share({ files: [file] });
             } catch (err) {
               console.error('Error sharing via navigator.share', err);
             }
@@ -410,13 +419,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initStarRating();
   });
 
-  // Google Review
+  // Google Review (updated placeid)
   document.getElementById('googleReviewButton').addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(document.getElementById('reviewText').value.trim());
       Swal.fire({ icon:'info', title:'Review copied! Paste it on Google.' })
         .then(() => window.open(
-          'https://search.google.com/local/writereview?placeid=ChIJAQB0dE1YkWsRXSuDBDHLr3M',
+          'https://search.google.com/local/writereview?placeid=ChIJFRctSC6LMW0Rd0T5nvajzPw',
           '_blank'
         ))
         .then(() => setTimeout(() => showStep('finalOptionsPage'), 1000));
