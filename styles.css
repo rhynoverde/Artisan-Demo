@@ -1,8 +1,18 @@
+/*  styles.css  – Artisan Demo  (Version d-3.2.0)
+   =============================================================== */
+
+/* ── design tokens ─────────────────────────────────────────────── */
 :root{
-  --accent:#9c6aad;--light-bg:#f9f2f8;--dark-text:#333;
+  --accent:      #9c6aad;
+  --accent-dark: #854b9e;
+  --accent-d2:   #6b3b84;
+  --blue:        #007BFF;
+  --blue-dark:   #005bb5;
+  --light-bg:    #f9f2f8;
+  --dark-text:   #333;
 }
 
-/* Base/Layout */
+/* ── reset / layout ─────────────────────────────────────────────── */
 *{box-sizing:border-box;margin:0;padding:0}
 body{
   background:var(--light-bg);
@@ -19,36 +29,71 @@ body{
 }
 .step{display:none}.step.active{display:block}
 
-/* Footer */
+/* ── footer ─────────────────────────────────────────────────────── */
 #pageFooter{
   width:100%;padding:10px;text-align:center;background:#eee;
   font-size:14px;position:fixed;bottom:0;left:0
 }
 .footer-version{color:#555}
 
-/* Business images */
+/* ── business hero (step-1) ─────────────────────────────────────── */
 .business-images{position:relative;width:100%;height:300px;margin-bottom:40px}
-.biz-owner{position:absolute;top:50%;left:50%;width:40%;transform:translate(-50%,-50%);border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:2}
-.biz-logo{position:absolute;top:50%;left:5%;width:20%;transform:translateY(-50%);border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:3;object-fit:contain}
-.biz-product{position:absolute;top:50%;right:5%;width:20%;transform:translateY(-50%);border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:1;object-fit:contain}
+.biz-owner{position:absolute;top:50%;left:50%;width:40%;transform:translate(-50%,-50%);
+  border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:2}
+.biz-logo{position:absolute;top:50%;left:5%;width:20%;transform:translateY(-50%);
+  border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:3;object-fit:contain}
+.biz-product{position:absolute;top:50%;right:5%;width:20%;transform:translateY(-50%);
+  border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,.2);z-index:1;object-fit:contain}
 .business-tagline{text-align:center;margin-bottom:25px;font-size:22px;color:var(--accent)}
 
-/* Buttons & Inputs */
+/* ── headings ───────────────────────────────────────────────────── */
+h2{font-size:20px;margin-bottom:15px;text-align:center}
+.minor-title{font-size:18px;margin:10px 0 15px;text-align:center;font-weight:600}
+
+/* ── buttons / inputs ───────────────────────────────────────────── */
 button{
   background:var(--accent);color:#fff;border:none;padding:15px;font-size:16px;
   cursor:pointer;border-radius:4px;width:100%;margin-bottom:15px;
   transition:background-color .3s ease
 }
-button:hover{background:#854b9e}button:active{background:#6b3b84}
+button:hover{background:var(--accent-dark)}
+button:active{background:var(--accent-d2)}
 .small-btn{width:auto;padding:8px 12px;font-size:14px;margin-top:8px}
+.advance-btn{font-size:15px}
+.upload-label{
+  display:block;width:100%;text-align:center;padding:15px;
+  background:var(--blue);color:#fff;border-radius:4px;margin-bottom:15px;
+  cursor:pointer
+}
+.upload-label:hover{background:var(--blue-dark)}
+.google-btn{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  background:#fff;color:#4285f4;border:2px solid #4285f4;
+}
+.google-btn:hover{background:#f1f5ff}
+.google-btn img.google-logo{width:22px;height:22px}
 
-/* Photo options */
+/* ── inputs / textareas ─────────────────────────────────────────── */
+textarea,#reviewerName{
+  width:100%;padding:12px;font-size:16px;border:1px solid #ccc;border-radius:4px;
+  margin-bottom:15px;resize:vertical
+}
+.name-input{height:48px}
+.name-helper{margin:-10px 0 10px;font-size:14px}
+
+/* char countdown colour handled via JS – the red class is here */
+#charCount.red{color:red}
+
+/* ── photo option tiles ─────────────────────────────────────────── */
 .photo-options{display:block}
-.photo-option{display:flex;align-items:center;padding:15px;background:#007BFF;color:#fff;border-radius:4px;margin:10px 0;cursor:pointer}
-.photo-option:hover{background:#005bb5}
+.photo-option{
+  display:flex;align-items:center;padding:15px;background:var(--blue);
+  color:#fff;border-radius:4px;margin:10px 0;cursor:pointer
+}
+.photo-option:hover{background:var(--blue-dark)}
 .photo-option .icon{font-size:24px;margin-right:10px}
 
-/* Camera */
+/* ── camera ─────────────────────────────────────────────────────── */
 #cameraContainer{position:relative;width:100%;max-width:400px;height:260px;margin:50px auto 15px;background:#000;border-radius:4px;overflow:hidden}
 #cameraPreview{width:100%;height:100%;object-fit:cover;touch-action:none}
 .zoom-indicator{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.5);color:#fff;padding:5px 10px;border-radius:4px}
@@ -59,37 +104,54 @@ button:hover{background:#854b9e}button:active{background:#6b3b84}
 .shutter-btn{width:70px;height:70px;background:#fff;border:5px solid #ccc;border-radius:50%}
 .shutter-btn:active{background:#ccc}
 
-/* Crop */
+/* ── cropper container ──────────────────────────────────────────── */
 #cropContainer{width:300px;height:194px;margin:0 auto 15px;border:2px solid #ddd;border-radius:4px;overflow:hidden}
-#cropImage{width:100%;height:100%;object-fit:contain}
 
-/* Share images */
-.share-image-container{text-align:center;margin-bottom:20px}
-.share-image-container img{max-width:100%;border:2px solid #ddd;border-radius:4px}
-.share-button{background:#007BFF;border-radius:30px;transition:background-color .3s}
-.share-button:hover{background:#005bb5}
+/* ── share-image boxes ──────────────────────────────────────────── */
+.share-image-container{position:relative;text-align:center;margin-bottom:20px}
+.share-image-container img{
+  max-width:100%;border:2px solid #ddd;border-radius:4px;
+  min-height:194px; /* reserves space so layout won't jump */
+}
+.loading-overlay{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  background:rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;
+  font-size:18px;font-weight:600;border-radius:4px;animation:fadeDots 1.2s infinite;
+  pointer-events:none
+}
+@keyframes fadeDots{
+  0%{opacity:.3}50%{opacity:1}100%{opacity:.3}
+}
 
-/* Customize row */
-.customize-row{display:flex;align-items:center;gap:6px;margin-bottom:15px;flex-wrap:wrap}
-.customize-row select,.customize-row input{padding:8px;border:1px solid #ddd;border-radius:4px;font-size:14px}
+/* customise-row – now below image, add top-gap */
+.customize-row{
+  display:flex;align-items:center;gap:6px;margin:15px 0;flex-wrap:wrap;
+}
+.customize-row select,.customize-row input{
+  padding:8px;border:1px solid #ddd;border-radius:4px;font-size:14px
+}
 #customTextInput{display:none}
 #applyTextButton{display:none}
 
-/* Star rating */
+/* ── star rating ─────────────────────────────────────────────────── */
 .star-rating{display:flex;justify-content:center;margin-bottom:15px}
-.star-rating span{font-size:30px;cursor:pointer;color:#ccc;margin:0 2px}
+.star-rating span{font-size:30px;cursor:pointer;color:#ccc;margin:0 2px;transition:color .25s}
 .star-rating span.selected{color:gold}
 
-/* Textareas & name input */
-textarea,#reviewerName{
-  width:100%;padding:12px;font-size:16px;border:1px solid #ccc;border-radius:4px;
-  margin-bottom:15px;resize:vertical
-}
-
-/* Accordion */
+/* ── accordion (final options) ───────────────────────────────────── */
 .accordion details{border:1px solid #ddd;border-radius:4px;margin-bottom:10px;padding:10px}
-.accordion summary{font-weight:bold;cursor:pointer}
+.accordion summary{font-weight:600;cursor:pointer}
 
-/* QR */
+/* ── QR ──────────────────────────────────────────────────────────── */
 .qr-container{text-align:center;margin:20px 0}
 .qr-container img{max-width:150px}
+
+/* ── utility classes ─────────────────────────────────────────────── */
+.min-h250{min-height:250px}
+.want-this-later{margin:20px 0 10px;font-weight:600;text-align:center}
+
+/* mobile tweaks */
+@media(max-width:375px){
+  .business-images{height:240px}
+  #cameraContainer{height:220px}
+}

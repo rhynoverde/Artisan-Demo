@@ -16,17 +16,17 @@
 <body>
 <div class="container">
 
-  <!-- ── STEP 1 ∙ Intro ─────────────────────────────────────────────── -->
+  <!-- ── STEP 1 • Intro ─────────────────────────────────────────────── -->
   <section id="step1" class="step active">
     <div class="form-section business-info">
       <div class="business-images">
-        <img class="biz-logo"    src="https://i.ibb.co/pvKdMm7x/Logo-Willow-And-Whimsy.png"  alt="Willow & Whimsy logo">
+        <img class="biz-logo"    src="https://i.ibb.co/pvKdMm7x/Logo-Willow-And-Whimsy.png"  alt="Willow &amp; Whimsy logo">
         <img class="biz-owner"   src="https://i.ibb.co/m54v8B6H/Janet-Willow-And-Whimsy.png" alt="Artist">
         <img class="biz-product" src="https://i.ibb.co/qFcnXPvm/Candle-Product-Photo-Willow-And-Whimsy.png" alt="Product">
       </div>
 
       <h2 class="business-tagline">
-        Share your Willow & Whimsy purchase with friends & family!
+        Share Your Willow &amp; Whimsy Purchase With Friends &amp; Family!
       </h2>
 
       <div class="photo-options intro-options">
@@ -36,32 +36,38 @@
     </div>
   </section>
 
-  <!-- ── STEP 2 ∙ Choose / Capture Image ────────────────────────────── -->
+  <!-- ── STEP 2 • Choose / Capture Image ────────────────────────────── -->
   <section id="step2" class="step">
     <div class="form-section">
 
       <div id="photoOptions" class="photo-options">
-        <button class="photo-option" data-option="take">  <span class="icon">📷</span><span class="label">Take Photo</span></button>
+        <button class="photo-option" data-option="take"><span class="icon">📷</span><span class="label">Take Photo</span></button>
         <button class="photo-option" data-option="upload"><span class="icon">⬆️</span><span class="label">Upload Photo</span></button>
-        <button class="photo-option" data-option="url">   <span class="icon">🔗</span><span class="label">Paste Image URL</span></button>
+        <button class="photo-option" data-option="url"><span class="icon">🔗</span><span class="label">Paste Image URL</span></button>
       </div>
 
       <!-- Camera -->
       <div id="takePhotoSection" class="photo-section" style="display:none;">
+        <h2 class="minor-title">Take a Photo of an Item From Willow &amp; Whimsy</h2>
+
         <div id="cameraContainer">
           <video id="cameraPreview" autoplay playsinline muted webkit-playsinline></video>
           <div id="cameraOverlay"><div class="hole"></div></div>
           <div id="zoomIndicator" class="zoom-indicator" style="display:none;">Zooming…</div>
         </div>
+
         <div class="camera-controls">
           <button id="swapCamera"  class="icon-btn">↺</button>
           <button id="capturePhoto" class="shutter-btn"></button>
           <button id="flashToggle" class="icon-btn flash-off">⚡</button>
         </div>
+
+        <button id="cameraBack" class="backToOptions">← Back</button>
       </div>
 
       <!-- Upload -->
       <div id="uploadPhotoSection" class="photo-section" style="display:none;">
+        <h2 class="minor-title">Choose a Photo of an Item From Willow &amp; Whimsy</h2>
         <p>Select a photo to upload:</p>
         <input type="file" id="uploadInput" accept="image/*">
         <label for="uploadInput" class="upload-label">Choose Photo</label>
@@ -79,7 +85,7 @@
 
       <!-- Crop -->
       <div id="cropSection" class="photo-section" style="display:none;">
-        <p>Adjust the photo if needed.</p>
+        <h2 class="minor-title">Crop Your Photo</h2>
         <div id="cropContainer"><img id="cropImage" src="" alt="To be cropped"></div>
         <div class="crop-buttons">
           <button id="cropButton">Crop</button>
@@ -91,12 +97,17 @@
     </div>
   </section>
 
-  <!-- ── STEP 3 ∙ Product Share ─────────────────────────────────────── -->
+  <!-- ── STEP 3 • Product Share ─────────────────────────────────────── -->
   <section id="vehicleSharePage" class="step">
     <div class="form-section">
-      <h2>Share your Willow & Whimsy purchase!</h2>
+      <h2>Share Your Willow &amp; Whimsy Purchase!</h2>
 
-      <!-- single-line customise row -->
+      <div class="share-image-container">
+        <div id="vehicleLoading" class="loading-overlay" style="display:none;">Updating…</div>
+        <img id="vehicleShareImage" src="" alt="Share Image">
+      </div>
+
+      <!-- customise row moved *below* image -->
       <div class="customize-row">
         <label for="customTextSelect">Customize Text&nbsp;</label>
         <select id="customTextSelect">
@@ -121,17 +132,13 @@
         <button id="applyTextButton" type="button" class="small-btn">Apply</button>
       </div>
 
-      <div class="share-image-container">
-        <img id="vehicleShareImage" src="" alt="Share Image">
-      </div>
-
       <button id="shareNowButton" class="share-button">Share Photo</button>
-      <button id="forwardFromVehicleShare" class="advance-btn">I already shared this &gt; Forward</button>
+      <button id="forwardFromVehicleShare" class="advance-btn">I Already Shared This ›</button>
       <button id="backFromVehicleShare">← Back</button>
     </div>
   </section>
 
-  <!-- ── STEP 4 ∙ Review Form ───────────────────────────────────────── -->
+  <!-- ── STEP 4 • Review Form ───────────────────────────────────────── -->
   <section id="reviewFormPage" class="step">
     <div class="form-section">
 
@@ -141,7 +148,7 @@
         <img class="biz-product" src="https://i.ibb.co/qFcnXPvm/Candle-Product-Photo-Willow-And-Whimsy.png" alt="Product">
       </div>
 
-      <h2>Write a quick review for Willow & Whimsy</h2>
+      <h2>Write a Quick Review for Willow &amp; Whimsy</h2>
 
       <div class="star-rating" id="reviewStarRating">
         <span data-value="1">&#9733;</span><span data-value="2">&#9733;</span><span data-value="3">&#9733;</span><span data-value="4">&#9733;</span><span data-value="5">&#9733;</span>
@@ -150,41 +157,45 @@
       <textarea id="reviewText" placeholder="Write your review here (max 130 characters)" maxlength="130"></textarea>
       <div id="charCount">130 characters left</div>
 
-      <input id="reviewerName" class="name-input" type="text" placeholder="Name (first, full, or nickname)*" required>
+      <p class="name-helper"><strong>Your Name</strong> – First, First and Last or just a nickname (This will go on your review image)</p>
+      <input id="reviewerName" class="name-input" type="text" placeholder="Your Name" required>
 
       <button id="submitReviewForm" type="button">Create Review Share Image</button>
       <button id="backFromReviewForm" type="button">← Back</button>
     </div>
   </section>
 
-  <!-- ── STEP 5 ∙ Review Share ──────────────────────────────────────── -->
+  <!-- ── STEP 5 • Review Share ──────────────────────────────────────── -->
   <section id="reviewSharePage" class="step">
     <div class="form-section">
-      <h2>Share your review of Willow & Whimsy</h2>
+      <h2>Share Your Review of Willow &amp; Whimsy</h2>
       <div class="share-image-container">
+        <div id="reviewLoading" class="loading-overlay" style="display:none;">Loading…</div>
         <img id="reviewShareImage" src="" alt="Review Share Image">
       </div>
       <button id="reviewShareButton" class="share-button">Share Photo</button>
-      <button id="forwardFromReviewShare" class="advance-btn">I already shared this &gt; Forward</button>
+      <button id="forwardFromReviewShare" class="advance-btn">I Already Shared This ›</button>
       <button id="backFromReviewShare">← Back</button>
     </div>
   </section>
 
-  <!-- ── STEP 6 ∙ Google Review ─────────────────────────────────────── -->
+  <!-- ── STEP 6 • Google Review ─────────────────────────────────────── -->
   <section id="googleReviewPage" class="step">
     <div class="form-section">
-      <h2>Thank you!</h2>
-      <p>Please paste your review on our Google profile – it really helps us grow.</p>
-      <button id="googleReviewButton" type="button">Paste Review on Google</button>
-      <button id="backFromGoogleReview" type="button">← Back</button>
-      <button id="forwardFromGoogleReview" type="button">Forward</button>
+      <h2>One Last Thing: Please Paste Your Review on Google</h2>
+      <button id="googleReviewButton" type="button" class="google-btn">
+        <img src="https://i.ibb.co/z69xV8L/google-logo.png" alt="Google Logo" class="google-logo">
+        &nbsp;Post Review on Google
+      </button>
+      <button id="backFromGoogleReview"   type="button">← Back</button>
+      <button id="forwardFromGoogleReview" type="button">Forward ›</button>
     </div>
   </section>
 
-  <!-- ── STEP 7 ∙ Final Options ─────────────────────────────────────── -->
+  <!-- ── STEP 7 • Final Options ─────────────────────────────────────── -->
   <section id="finalOptionsPage" class="step">
     <div class="form-section">
-      <h2>Whew! Thanks for supporting us.</h2>
+      <h2>Wow! Thanks for Supporting Willow &amp; Whimsy.</h2>
       <p>You can always save or post these again later:</p>
 
       <div class="accordion">
@@ -204,20 +215,25 @@
         </details>
       </div>
 
+      <p class="review-copy-label">Your review, feel free to update it as you like with no character limitations</p>
       <textarea id="finalReviewText" placeholder="Your review will appear here…"></textarea>
       <button id="copyReviewText" type="button">Copy Review Text</button>
 
-      <p>Want this page later?</p>
-      <button id="textLinkFinal"  type="button">Text me a link</button>
-      <button id="emailLinkFinal" type="button">Email me a link</button>
+      <button id="savePageButton"       type="button">Save This Page</button>
+      <button id="remindLaterButton"    type="button">Remind Me to Share This Again Later</button>
+
+      <p class="want-this-later">Want this page later?</p>
+      <button id="textLinkFinal"  type="button">Text Me a Link</button>
+      <button id="emailLinkFinal" type="button">Email Me a Link</button>
+
       <button id="backFromFinalOptions" type="button">← Back</button>
     </div>
   </section>
 
-  <!-- ── STEP 8 ∙ QR ────────────────────────────────────────────────── -->
+  <!-- ── STEP 8 • QR ────────────────────────────────────────────────── -->
   <section id="qrSharePage" class="step">
     <div class="form-section">
-      <h2>Scan to share</h2>
+      <h2>Scan to Share</h2>
       <p class="qr-link">justshar.ing/xyz</p>
       <div class="qr-container"><img id="qrCodeImage" src="" alt="QR Code"></div>
       <button id="backFromQR" type="button">← Back</button>
@@ -226,7 +242,7 @@
 
 </div>
 
-<footer id="pageFooter"><span class="footer-version">Version d-3.1.2</span></footer>
+<footer id="pageFooter"><span class="footer-version">Version d-3.2.0</span></footer>
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/cropperjs@1.5.12/dist/cropper.min.js"></script>
