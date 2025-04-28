@@ -1,4 +1,4 @@
-/*  scripts.js  – Artisan Demo  (Version d-3.2.0)  */
+/*  scripts.js  – Artisan Demo  (Version d-3.2.2)  */
 
 const IMGBB_API_KEY = 'd44d592f97ef193ce535a799d00ef632';
 const FINAL_WIDTH   = 1080;
@@ -9,6 +9,7 @@ const TEMPLATE_URL        = 'https://my.reviewshare.pics/i/31TmFySPG.png?';
 const REVIEW_TEMPLATE_URL = 'https://my.reviewshare.pics/i/FydUOQzdg.png?';
 
 let uploadedVehicleUrl = '';
+let originalPhotoUrl   = '';            /* <- holds the RAW photo the moment it’s chosen  */
 let userReview         = '';
 let selectedRating     = 0;
 let cropper            = null;
@@ -122,6 +123,10 @@ function captureFromCamera(){
   ctx.drawImage(v,0,0,v.videoWidth,v.videoHeight,dx,dy,w,h);
   const crop=document.createElement('canvas');crop.width=FINAL_WIDTH;crop.height=FINAL_HEIGHT;
   crop.getContext('2d').drawImage(full,0,0,CW,CH,0,0,FINAL_WIDTH,FINAL_HEIGHT);
+
+  /* store the raw photo for later saving */
+  originalPhotoUrl = crop.toDataURL('image/jpeg');
+
   stopCamera();
   showLoading($('vehicleShareImage'));
   uploadToImgbb(crop.toDataURL('image/jpeg'))
@@ -130,6 +135,7 @@ function captureFromCamera(){
 }
 
 function loadImageForCrop(src,isUrl=false){
+  originalPhotoUrl = src;                           /* <- store raw photo */
   const img=$('cropImage');
   if(isUrl) img.crossOrigin='Anonymous';
   img.src=src;
@@ -147,24 +153,22 @@ function showQRPage(){
 
 /* ── character counter for review ─────────────────────────────────── */
 function updateCharCount() {
-    const ta = $('reviewText');
-    const text = ta.value;
-    const lineBreaks = (text.match(/\n/g) || []).length;  // count \n
-    const max = 230 - (lineBreaks * 40);                  // each line break "costs" 40 chars
-    const left = max - text.length;
-    const cc = $('charCount');
-    
-    cc.textContent = `${left} characters left`;
-    cc.classList.toggle('red', left <= 0);
-    
-    // Enforce limit manually if needed
-    if (left < 0) {
-      ta.value = text.slice(0, max);
-      updateCharCount(); // recheck after trimming
-    }
+  const ta = $('reviewText');
+  const text = ta.value;
+  const lineBreaks = (text.match(/\n/g) || []).length;
+  const max = 230 - (lineBreaks * 40);
+  const left = max - text.length;
+  const cc = $('charCount');
+
+  cc.textContent = `${left} characters left`;
+  cc.classList.toggle('red', left <= 0);
+
+  if (left < 0) {
+    ta.value = text.slice(0, max);
+    updateCharCount();
   }
-  
-  
+}
+
 /* ── DOMContentLoaded main block ──────────────────────────────────── */
 document.addEventListener('DOMContentLoaded',()=>{
 
@@ -298,7 +302,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         showCancelButton: false
       }).then(async res => {
         if (res.isConfirmed && navigator.share) {
-          const blob = await (await fetch(document.getElementById('vehicleShareImage').src)).blob();
+          const blob = await (await fetch($('vehicleShareImage').src)).blob();
           await navigator.share({
             files: [new File([blob], 'product.jpg', { type: blob.type })]
           });
@@ -363,7 +367,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         showCancelButton: false
       }).then(async res => {
         if (res.isConfirmed && navigator.share) {
-          const blob = await (await fetch(document.getElementById('reviewShareImage').src)).blob();
+          const blob = await (await fetch($('reviewShareImage').src)).blob();
           await navigator.share({
             files: [new File([blob], 'review.jpg', { type: blob.type })]
           });
@@ -375,52 +379,70 @@ document.addEventListener('DOMContentLoaded',()=>{
   $('backFromReviewShare').onclick=()=>{showStep('reviewFormPage');initStarRating();};
 
   /* google review */
-  $('googleReviewButton').onclick=async ()=>{
-    try{
-      await navigator.clipboard.writeText($('reviewText').value.trim());
+  $('googleReviewButton').onclick = async () => {
+    try {
+      const reviewTxt = $('finalReviewText') ? $('finalReviewText').value.trim() : $('reviewText').value.trim();
+      if (reviewTxt) await navigator.clipboard.writeText(reviewTxt);
+  
       Swal.fire({
         title: 'Post Your Review on Google!',
         html: `
-          <p>You're about to leave a review. Thank you!</p>
-          <p style="margin-top:15px;">You can save your entree photo to your photo library to share with your review.<br>Just tap and hold your finger on the photo until the option to save to your photo library appears.</p>
-          <div id="customerImageContainer" style="margin-top:20px; width:100%; height:300px; display:flex; justify-content:center; align-items:center; background-color:#f0f0f0; color:#888; font-size:18px;">
+          <p>You can save your image to your photos to attach to your review. Just long tap/press on your photo then save it to your phone as shown.</p>
+          <img src="https://f000.backblazeb2.com/file/EmbrFyr/Instructional-Images/LongPressSaveToPhotos.jpg" 
+               alt="Save to Photos Instruction" 
+               style="margin: 15px auto; display:block; max-width: 50%; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.15);">
+          <div id="customerImageContainer" style="margin-top:20px; width:100%; height:150px; display:flex; justify-content:center; align-items:center; background-color:#f0f0f0; color:#888; font-size:16px;">
             Loading photo...
           </div>
+          <ol style="text-align:left; margin-top:20px; font-size:16px;">
+            When you get to google (you may need to sign in first), Do the following:
+            <li>Select your star rating</li>
+            <li>Paste Review in review box (hold finger until paste options appears)</li>
+            <li>Add photo(s) to your review (optional but highly helpful and appreciated)</li>
+            <li>Tap post button</li>
+          </ol>
+          <p style="margin-top:10px; font-size:16px;"><strong>That's it!</strong></p>
           <style>
+            #customerImageContainer img {
+              max-width: 50%;
+              max-height: 100%;
+              animation: fadeInImage 0.5s ease-in-out;
+              display: block;
+            }
             @keyframes fadeInImage {
               from { opacity: 0; }
               to { opacity: 1; }
             }
           </style>
         `,
-        showConfirmButton: false,
+        showConfirmButton: true,
+        confirmButtonText: 'Got it, Paste Google Review',
         allowOutsideClick: false,
-        allowEscapeKey: true
+        allowEscapeKey: true,
+        didOpen: () => {
+          const container = $('customerImageContainer');
+          if (!originalPhotoUrl) {
+            container.innerHTML = '<p style="color:red;">Photo failed to load.</p>';
+            return;
+          }
+          const img = new Image();
+          img.src = originalPhotoUrl;
+          img.onload = () => { container.innerHTML = ''; container.appendChild(img); };
+          img.onerror = () => { container.innerHTML = '<p style="color:red;">Photo failed to load.</p>'; };
+        }
+      }).then(res => {
+        if (res.isConfirmed) {
+          window.open('https://search.google.com/local/writereview?placeid=ChIJFRctSC6LMW0Rd0T5nvajzPw', '_blank');
+        }
       });
-      
-      // Load the customer image dynamically
-      const customerImageUrl = document.getElementById('customerShareImage').src; // Make sure this ID matches your customer image
-      const img = new Image();
-      img.src = customerImageUrl;
-      img.style.maxWidth = '100%';
-      img.style.maxHeight = '100%';
-      img.style.animation = 'fadeInImage 0.5s ease-in-out';
-      img.onload = function() {
-        const container = document.getElementById('customerImageContainer');
-        if (container) {
-          container.innerHTML = ''; // Clear "Loading..." text
-          container.appendChild(img); // Insert the loaded image
-        }
-      };
-      img.onerror = function() {
-        const container = document.getElementById('customerImageContainer');
-        if (container) {
-          container.innerHTML = '<p style="color:red;">Failed to load image.</p>';
-        }
-      };
-      
-    }catch{alert('Failed to copy review');}
+  
+    } catch (err) {
+      console.error(err);
+      alert('Failed to copy review');
+    }
   };
+  
+  
   $('backFromGoogleReview').onclick=()=>showStep('reviewSharePage');
   $('forwardFromGoogleReview').onclick=()=>showStep('finalOptionsPage');
 

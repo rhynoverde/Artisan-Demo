@@ -16,6 +16,10 @@
 <body>
 <div class="container">
 
+    <!-- Holds the ORIGINAL photo the moment it’s chosen -->
+<img id="originalPhoto" src="" style="display:none;">
+
+
   <!-- ── STEP 1 • Intro ─────────────────────────────────────────────── -->
   <section id="step1" class="step active">
     <div class="form-section business-info">
@@ -182,10 +186,10 @@
   <section id="googleReviewPage" class="step">
     <div class="form-section">
       <h2>One Last Thing: Please Paste Your Review on Google</h2>
-      <button id="googleReviewButton" type="button" class="google-btn">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Google_Maps_icon_%282015-2020%29.svg" alt="Google Logo" class="google-logo">
-        &nbsp;Post Review on Google
-      </button>
+      <button id="googleReviewButton" type="button" class="share-button">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/39/Google_Maps_icon_%282015-2020%29.svg" alt="Google Logo" style="height:20px; vertical-align:middle; margin-right:8px;">
+        Post Review on Google
+      </button>      
       <button id="backFromGoogleReview"   type="button">← Back</button>
       <button id="forwardFromGoogleReview" type="button">Forward ›</button>
     </div>
