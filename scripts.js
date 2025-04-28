@@ -379,14 +379,46 @@ document.addEventListener('DOMContentLoaded',()=>{
     try{
       await navigator.clipboard.writeText($('reviewText').value.trim());
       Swal.fire({
-        title:'Review Copied!',
-        html:'<p>Your review is on the clipboard. Paste it on Google.</p>',
-        icon:'info',
-        confirmButtonText:'Open Google'
-      }).then(()=>{
-        window.open('https://search.google.com/local/writereview?placeid=ChIJFRctSC6LMW0Rd0T5nvajzPw','_blank');
-        setTimeout(()=>showStep('finalOptionsPage'),1000);
+        title: 'Post Your Review on Google!',
+        html: `
+          <p>You're about to leave a review. Thank you!</p>
+          <p style="margin-top:15px;">You can save your entree photo to your photo library to share with your review.<br>Just tap and hold your finger on the photo until the option to save to your photo library appears.</p>
+          <div id="customerImageContainer" style="margin-top:20px; width:100%; height:300px; display:flex; justify-content:center; align-items:center; background-color:#f0f0f0; color:#888; font-size:18px;">
+            Loading photo...
+          </div>
+          <style>
+            @keyframes fadeInImage {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+          </style>
+        `,
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        allowEscapeKey: true
       });
+      
+      // Load the customer image dynamically
+      const customerImageUrl = document.getElementById('customerShareImage').src; // Make sure this ID matches your customer image
+      const img = new Image();
+      img.src = customerImageUrl;
+      img.style.maxWidth = '100%';
+      img.style.maxHeight = '100%';
+      img.style.animation = 'fadeInImage 0.5s ease-in-out';
+      img.onload = function() {
+        const container = document.getElementById('customerImageContainer');
+        if (container) {
+          container.innerHTML = ''; // Clear "Loading..." text
+          container.appendChild(img); // Insert the loaded image
+        }
+      };
+      img.onerror = function() {
+        const container = document.getElementById('customerImageContainer');
+        if (container) {
+          container.innerHTML = '<p style="color:red;">Failed to load image.</p>';
+        }
+      };
+      
     }catch{alert('Failed to copy review');}
   };
   $('backFromGoogleReview').onclick=()=>showStep('reviewSharePage');
