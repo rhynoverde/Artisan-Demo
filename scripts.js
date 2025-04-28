@@ -270,24 +270,40 @@ document.addEventListener('DOMContentLoaded',()=>{
         title: 'Etsy Link Copied!',
         html: `
           <p>The Etsy store link for Willow & Whimsy was saved to your clipboard.</p>
-          <div style="text-align:left; margin-top:15px;">
-            <p><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;">
-            <strong>Instagram:</strong> Paste it as a Link Sticker in an Instagram Story.</p>
-      
-            <p><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;">
-            <strong>Facebook:</strong> Paste it in the post description or first comment (preferred).</p>
-      
-            <p><img src="https://upload.wikimedia.org/wikipedia/commons/4/42/Emoji_u1f604.svg" alt="Smiley" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;">
-            <strong>Other Places:</strong> Share it anywhere you post your image!</p>
-          </div>
+          <ul style="text-align:left; margin-top:20px; list-style:none; padding:0; animation: fadeInList 1s ease-in-out;">
+            <li style="margin-bottom:20px;">
+              <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" style="width:24px;height:24px;vertical-align:middle;margin-right:10px;">
+              <strong>Instagram:</strong> Paste it as a Link Sticker in an Instagram Story.
+            </li>
+            <li style="margin-bottom:20px;">
+              <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook" style="width:24px;height:24px;vertical-align:middle;margin-right:10px;">
+              <strong>Facebook:</strong> Paste it in the post description or first comment (preferred).
+            </li>
+            <li>
+              <img src="https://cdn-icons-png.flaticon.com/512/742/742751.png" alt="Smiley" style="width:24px;height:24px;vertical-align:middle;margin-right:10px;">
+              <strong>Other Places:</strong> Share it anywhere you post your image!
+            </li>
+          </ul>
+          <style>
+            @keyframes fadeInList {
+              0% { opacity: 0; transform: translateY(10px); }
+              100% { opacity: 1; transform: translateY(0); }
+            }
+          </style>
         `,
         icon: 'success',
         confirmButtonText: 'Got it, Share Image Now!',
         allowOutsideClick: false,
         allowEscapeKey: false,
         showCancelButton: false
-      });
-      
+      }).then(async res => {
+        if (res.isConfirmed && navigator.share) {
+          const blob = await (await fetch(document.getElementById('vehicleShareImage').src)).blob();
+          await navigator.share({
+            files: [new File([blob], 'product.jpg', { type: blob.type })]
+          });
+        }
+      });      
     }catch{alert('Failed to copy link');}
   };
   $('forwardFromVehicleShare').onclick=()=>{showStep('reviewFormPage');initStarRating();};
@@ -316,18 +332,43 @@ document.addEventListener('DOMContentLoaded',()=>{
     try{
       await navigator.clipboard.writeText('https://www.etsy.com/listing/1088793681/willow-and-wood-signature-scented-soy');
       Swal.fire({
-        title:'Contact Link Saved!',
-        html:'<p>Paste the link when you post the image.</p>',
-        icon:'success',
-        showCancelButton:true,
-        confirmButtonText:'Got it!, Share Image Now',
-        cancelButtonText:'More Instructions'
-      }).then(async res=>{
-        if(res.isConfirmed&&navigator.share){
-          const blob=await(await fetch($('reviewShareImage').src)).blob();
-          await navigator.share({files:[new File([blob],'review.jpg',{type:blob.type})]});
+        title: 'Etsy Link Copied!',
+        html: `
+          <p>The Etsy store link for Willow & Whimsy was saved to your clipboard.</p>
+          <ul style="text-align:left; margin-top:20px; list-style:none; padding:0; animation: fadeInList 1s ease-in-out;">
+            <li style="margin-bottom:20px;">
+              <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" style="width:24px;height:24px;vertical-align:middle;margin-right:10px;">
+              <strong>Instagram:</strong> Paste it as a Link Sticker in an Instagram Story.
+            </li>
+            <li style="margin-bottom:20px;">
+              <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" alt="Facebook" style="width:24px;height:24px;vertical-align:middle;margin-right:10px;">
+              <strong>Facebook:</strong> Paste it in the post description or first comment (preferred).
+            </li>
+            <li>
+              <img src="https://cdn-icons-png.flaticon.com/512/742/742751.png" alt="Smiley" style="width:24px;height:24px;vertical-align:middle;margin-right:10px;">
+              <strong>Other Places:</strong> Share it anywhere you post your image!
+            </li>
+          </ul>
+          <style>
+            @keyframes fadeInList {
+              0% { opacity: 0; transform: translateY(10px); }
+              100% { opacity: 1; transform: translateY(0); }
+            }
+          </style>
+        `,
+        icon: 'success',
+        confirmButtonText: 'Got it, Share Image Now!',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showCancelButton: false
+      }).then(async res => {
+        if (res.isConfirmed && navigator.share) {
+          const blob = await (await fetch(document.getElementById('reviewShareImage').src)).blob();
+          await navigator.share({
+            files: [new File([blob], 'review.jpg', { type: blob.type })]
+          });
         }
-      });
+      });      
     }catch{alert('Failed to copy link');}
   };
   $('forwardFromReviewShare').onclick=()=>showStep('googleReviewPage');
