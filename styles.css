@@ -74,15 +74,39 @@ button:active{background:var(--accent-d2)}
 .google-btn img.google-logo{width:22px;height:22px}
 
 /* ── inputs / textareas ─────────────────────────────────────────── */
-textarea,#reviewerName{
-  width:100%;padding:12px;font-size:16px;border:1px solid #ccc;border-radius:4px;
-  margin-bottom:15px;resize:vertical
+textarea {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 5px; /* <- tighter space under textarea */
+  resize: vertical;
+  font-family: 'Helvetica Neue', Arial, sans-serif;
 }
+
+#reviewerName {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 15px; /* <- keep normal margin under input */
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
 .name-input{height:48px}
-.name-helper{margin:-10px 0 10px;font-size:14px}
+.name-helper{margin:30px 0 10px;font-size:14px}
 
 /* char countdown colour handled via JS – the red class is here */
 #charCount.red{color:red}
+
+#charCount {
+  margin-top: 5px;       /* bring it closer to textarea */
+  text-align: center;    /* center the text */
+  font-size: 14px;       /* (optional) adjust if you want it a little smaller */
+}
+
 
 /* ── photo option tiles ─────────────────────────────────────────── */
 .photo-options{display:block}
@@ -155,3 +179,9 @@ textarea,#reviewerName{
   .business-images{height:240px}
   #cameraContainer{height:220px}
 }
+
+/* hide small file upload button */
+#uploadInput {
+  display: none;
+}
+
