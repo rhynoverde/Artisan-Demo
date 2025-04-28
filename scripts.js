@@ -146,13 +146,24 @@ function showQRPage(){
 }
 
 /* ── character counter for review ─────────────────────────────────── */
-function updateCharCount(){
-  const ta=$('reviewText');
-  const left=130-ta.value.length;
-  const cc=$('charCount');
-  cc.textContent=`${left} characters left`;
-  cc.classList.toggle('red',left===0);
-}
+function updateCharCount() {
+    const ta = $('reviewText');
+    const text = ta.value;
+    const lineBreaks = (text.match(/\n/g) || []).length;  // count \n
+    const max = 230 - (lineBreaks * 40);                  // each line break "costs" 40 chars
+    const left = max - text.length;
+    const cc = $('charCount');
+    
+    cc.textContent = `${left} characters left`;
+    cc.classList.toggle('red', left <= 0);
+    
+    // Enforce limit manually if needed
+    if (left < 0) {
+      ta.value = text.slice(0, max);
+      updateCharCount(); // recheck after trimming
+    }
+  }
+  
   
 /* ── DOMContentLoaded main block ──────────────────────────────────── */
 document.addEventListener('DOMContentLoaded',()=>{
@@ -256,18 +267,27 @@ document.addEventListener('DOMContentLoaded',()=>{
     try{
       await navigator.clipboard.writeText(shareLink);
       Swal.fire({
-        title:'Contact Link Saved to Clipboard!',
-        html:'<p>Paste the link anywhere you post this image.</p>',
-        icon:'success',
-        showCancelButton:true,
-        confirmButtonText:'Got it!, Share Image Now',
-        cancelButtonText:'More Instructions'
-      }).then(async res=>{
-        if(res.isConfirmed&&navigator.share){
-          const blob=await(await fetch($('vehicleShareImage').src)).blob();
-          await navigator.share({files:[new File([blob],'product.jpg',{type:blob.type})]});
-        }
+        title: 'Etsy Link Copied!',
+        html: `
+          <p>The Etsy store link for Willow & Whimsy was saved to your clipboard.</p>
+          <div style="text-align:left; margin-top:15px;">
+            <p><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;">
+            <strong>Instagram:</strong> Paste it as a Link Sticker in an Instagram Story.</p>
+      
+            <p><img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;">
+            <strong>Facebook:</strong> Paste it in the post description or first comment (preferred).</p>
+      
+            <p><img src="https://upload.wikimedia.org/wikipedia/commons/4/42/Emoji_u1f604.svg" alt="Smiley" style="width:20px;height:20px;vertical-align:middle;margin-right:8px;">
+            <strong>Other Places:</strong> Share it anywhere you post your image!</p>
+          </div>
+        `,
+        icon: 'success',
+        confirmButtonText: 'Got it, Share Image Now!',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showCancelButton: false
       });
+      
     }catch{alert('Failed to copy link');}
   };
   $('forwardFromVehicleShare').onclick=()=>{showStep('reviewFormPage');initStarRating();};

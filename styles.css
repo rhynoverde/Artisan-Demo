@@ -96,16 +96,24 @@ textarea {
 }
 
 .name-input{height:48px}
-.name-helper{margin:30px 0 10px;font-size:14px}
+.name-helper {
+  margin: 30px 0 10px;
+  font-size: 14px;
+  text-align: center;
+}
+
 
 /* char countdown colour handled via JS – the red class is here */
 #charCount.red{color:red}
 
 #charCount {
-  margin-top: 5px;       /* bring it closer to textarea */
-  text-align: center;    /* center the text */
-  font-size: 14px;       /* (optional) adjust if you want it a little smaller */
+  margin-top: 0px;
+  text-align: center;
+  font-size: 14px;
+  color: #666; /* lighter, softer gray */
+  width: 100%;
 }
+
 
 
 /* ── photo option tiles ─────────────────────────────────────────── */
