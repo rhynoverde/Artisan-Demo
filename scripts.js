@@ -1,15 +1,18 @@
-/*  scripts.js  – Artisan Demo  (Version d-3.2.2)  */
+/*  scripts.js  – Artisan Demo  (Version d-3.2.3)  */
 
 const IMGBB_API_KEY = 'd44d592f97ef193ce535a799d00ef632';
 const FINAL_WIDTH   = 1080;
 const FINAL_HEIGHT  = 700;
 const ASPECT_RATIO  = FINAL_WIDTH / FINAL_HEIGHT;
 
+/* ── project‑wide constants ───────────────────────────────────────── */
+const ETSY_LINK           = 'https://www.etsy.com/listing/1088793681/willow-and-wood-signature-scented-soy';
 const TEMPLATE_URL        = 'https://my.reviewshare.pics/i/31TmFySPG.png?';
 const REVIEW_TEMPLATE_URL = 'https://my.reviewshare.pics/i/FydUOQzdg.png?';
 
+/* ── global state ─────────────────────────────────────────────────── */
 let uploadedVehicleUrl = '';
-let originalPhotoUrl   = '';            /* <- holds the RAW photo the moment it’s chosen  */
+let originalPhotoUrl   = '';            // raw photo after capture / upload
 let userReview         = '';
 let selectedRating     = 0;
 let cropper            = null;
@@ -17,10 +20,26 @@ let cameraStream       = null;
 let currentCamera      = 'environment';
 let currentScale       = 1;
 
-/* ── helpers ────────────────────────────────────────────────────────── */
-const $  = id  => document.getElementById(id);
-const qs = s   => document.querySelector(s);
-const qa = s   => document.querySelectorAll(s);
+/* ── helpers ──────────────────────────────────────────────────────── */
+const $  = id => document.getElementById(id);
+const qs = s  => document.querySelector(s);
+const qa = s  => document.querySelectorAll(s);
+
+/* robust clipboard helper (Clipboard API + execCommand fallback) */
+async function copyText(text){
+  if (navigator.clipboard && window.isSecureContext){
+    try{ await navigator.clipboard.writeText(text); return; }
+    catch(e){ /* fall back */ }
+  }
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.opacity  = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try{ document.execCommand('copy'); } finally{ document.body.removeChild(ta); }
+}
 
 async function uploadToImgbb(dataUrl){
   const res = await fetch('https://api.imgbb.com/1/upload',{
@@ -65,13 +84,13 @@ function initStarRating(){
   const paint=v=>stars.forEach(s=>s.classList.toggle('selected',+s.dataset.value<=v));
   stars.forEach(st=>{
     const v=+st.dataset.value;
-    st.onclick        =()=>{selectedRating=v;paint(v)};
-    st.onmouseover    =()=>paint(v);
-    st.onmouseout     =()=>paint(selectedRating);
+    st.onclick     =()=>{selectedRating=v;paint(v)};
+    st.onmouseover =()=>paint(v);
+    st.onmouseout  =()=>paint(selectedRating);
   });
 }
 
-/* ── CAMERA + pinch-zoom ──────────────────────────────────────────── */
+/* ── CAMERA + pinch‑zoom ──────────────────────────────────────────── */
 const activePointers=new Map();
 function initPinchZoom(v){
   activePointers.clear();let startDist=0,startScale=currentScale;
@@ -80,7 +99,8 @@ function initPinchZoom(v){
     activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(activePointers.size===2){
       const [p1,p2]=activePointers.values();
-      startDist=Math.hypot(p1.x-p2.x,p1.y-p2.y);startScale=currentScale;
+      startDist=Math.hypot(p1.x-p2.x,p1.y-p2.y);
+      startScale=currentScale;
     }
   };
   v.onpointermove=e=>{
@@ -91,7 +111,10 @@ function initPinchZoom(v){
       const d=Math.hypot(p1.x-p2.x,p1.y-p2.y);
       currentScale=startScale*(d/startDist);
       v.style.transform=`scale(${currentScale})`;
-      if(zi){zi.style.display='block';zi.textContent=d>startDist?'Zooming In…':'Zooming Out…';}
+      if(zi){
+        zi.style.display='block';
+        zi.textContent=d>startDist?'Zooming In…':'Zooming Out…';
+      }
     }
   };
   ['pointerup','pointercancel'].forEach(evt=>v.addEventListener(evt,e=>{
@@ -104,6 +127,7 @@ function stopCamera(){
   if(cameraStream){cameraStream.getTracks().forEach(t=>t.stop());cameraStream=null;}
   const v=$('cameraPreview');if(v) v.srcObject=null;
 }
+
 function startCamera(){
   stopCamera();
   const v=$('cameraPreview');currentScale=1;if(v) v.style.transform='scale(1)';
@@ -124,8 +148,7 @@ function captureFromCamera(){
   const crop=document.createElement('canvas');crop.width=FINAL_WIDTH;crop.height=FINAL_HEIGHT;
   crop.getContext('2d').drawImage(full,0,0,CW,CH,0,0,FINAL_WIDTH,FINAL_HEIGHT);
 
-  /* store the raw photo for later saving */
-  originalPhotoUrl = crop.toDataURL('image/jpeg');
+  originalPhotoUrl = crop.toDataURL('image/jpeg'); // save raw
 
   stopCamera();
   showLoading($('vehicleShareImage'));
@@ -135,14 +158,17 @@ function captureFromCamera(){
 }
 
 function loadImageForCrop(src,isUrl=false){
-  originalPhotoUrl = src;                           /* <- store raw photo */
+  originalPhotoUrl = src;
   const img=$('cropImage');
   if(isUrl) img.crossOrigin='Anonymous';
   img.src=src;
-  qa('.photo-section').forEach(s=>s.style.display='none');$('cropSection').style.display='block';
+  qa('.photo-section').forEach(s=>s.style.display='none');
+  $('cropSection').style.display='block';
   cropper?.destroy();
-  cropper=new Cropper(img,{aspectRatio:ASPECT_RATIO,viewMode:1,autoCropArea:0.8,dragMode:'move',
-                           movable:true,zoomable:true,cropBoxResizable:false,cropBoxMovable:false});
+  cropper=new Cropper(img,{
+    aspectRatio:ASPECT_RATIO,viewMode:1,autoCropArea:0.8,dragMode:'move',
+    movable:true,zoomable:true,cropBoxResizable:false,cropBoxMovable:false
+  });
 }
 
 /* ── QR helper ────────────────────────────────────────────────────── */
@@ -152,19 +178,17 @@ function showQRPage(){
 }
 
 /* ── character counter for review ─────────────────────────────────── */
-function updateCharCount() {
-  const ta = $('reviewText');
-  const text = ta.value;
-  const lineBreaks = (text.match(/\n/g) || []).length;
-  const max = 230 - (lineBreaks * 40);
-  const left = max - text.length;
-  const cc = $('charCount');
-
-  cc.textContent = `${left} characters left`;
-  cc.classList.toggle('red', left <= 0);
-
-  if (left < 0) {
-    ta.value = text.slice(0, max);
+function updateCharCount(){
+  const ta=$('reviewText');
+  const text=ta.value;
+  const lineBreaks=(text.match(/\n/g)||[]).length;
+  const max=230-(lineBreaks*40);
+  const left=max-text.length;
+  const cc=$('charCount');
+  cc.textContent=`${left} characters left`;
+  cc.classList.toggle('red',left<=0);
+  if(left<0){
+    ta.value=text.slice(0,max);
     updateCharCount();
   }
 }
@@ -182,7 +206,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   sel.onchange=()=>{
     const cust=sel.value==='custom';
     customIn.style.display=cust?'block':'none';
-    applyBtn.style.display =cust?'inline-block':'none';
+    applyBtn.style.display=cust?'inline-block':'none';
     if(!cust) updateShareImage();
     if(cust) customIn.focus();
   };
@@ -191,40 +215,53 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   /* intro buttons */
   $('takePhotoButton').onclick=()=>{
-    showStep('step2');$('photoOptions').style.display='none';
+    showStep('step2');
+    $('photoOptions').style.display='none';
     qa('.photo-section').forEach(s=>s.style.display='none');
-    $('takePhotoSection').style.display='block';startCamera();
+    $('takePhotoSection').style.display='block';
+    startCamera();
   };
   $('uploadPhotoButton').onclick=()=>{
-    showStep('step2');$('photoOptions').style.display='none';
+    showStep('step2');
+    $('photoOptions').style.display='none';
     qa('.photo-section').forEach(s=>s.style.display='none');
     $('uploadPhotoSection').style.display='block';
   };
 
-  /* step-2 inner options */
+  /* step‑2 inner options */
   qa('#photoOptions .photo-option').forEach(btn=>btn.onclick=()=>{
-    $('photoOptions').style.display='none';qa('.photo-section').forEach(s=>s.style.display='none');
+    $('photoOptions').style.display='none';
+    qa('.photo-section').forEach(s=>s.style.display='none');
     const opt=btn.dataset.option;
     if(opt==='take'){ $('takePhotoSection').style.display='block';startCamera();}
     else if(opt==='upload'){ $('uploadPhotoSection').style.display='block';}
     else $('urlPhotoSection').style.display='block';
   });
   qa('.backToOptions').forEach(b=>b.onclick=()=>{
-    stopCamera();$('photoOptions').style.display='block';qa('.photo-section').forEach(s=>s.style.display='none');
+    stopCamera();
+    $('photoOptions').style.display='block';
+    qa('.photo-section').forEach(s=>s.style.display='none');
   });
 
   /* file / url */
   $('uploadInput').onchange=e=>{
-    const f=e.target.files[0]; if(!f)return;
-    const r=new FileReader();r.onload=ev=>loadImageForCrop(ev.target.result);r.readAsDataURL(f);
+    const f=e.target.files[0];if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>loadImageForCrop(ev.target.result);
+    r.readAsDataURL(f);
   };
   $('loadUrlImage').onclick=()=>{
-    const u=$('imageUrlInput').value.trim();if(!u)return alert('Enter a valid URL');loadImageForCrop(u,true);
+    const u=$('imageUrlInput').value.trim();
+    if(!u) return alert('Enter a valid URL');
+    loadImageForCrop(u,true);
   };
 
   /* camera controls */
   $('capturePhoto').onclick=captureFromCamera;
-  $('swapCamera').onclick=()=>{currentCamera=currentCamera==='environment'?'user':'environment';startCamera();};
+  $('swapCamera').onclick=()=>{
+    currentCamera=currentCamera==='environment'?'user':'environment';
+    startCamera();
+  };
   $('flashToggle').onclick=e=>{
     if(!cameraStream)return;
     const track=cameraStream.getVideoTracks()[0];
@@ -263,13 +300,17 @@ document.addEventListener('DOMContentLoaded',()=>{
     };
     img.src=src;
   };
-  $('changePhoto').onclick=()=>{stopCamera();$('photoOptions').style.display='block';qa('.photo-section').forEach(s=>s.style.display='none');};
+  $('changePhoto').onclick=()=>{
+    stopCamera();
+    $('photoOptions').style.display='block';
+    qa('.photo-section').forEach(s=>s.style.display='none');
+  };
 
   /* vehicle share page */
   $('shareNowButton').onclick=async ()=>{
-    const shareLink='https://www.etsy.com/listing/1088793681/willow-and-wood-signature-scented-soy';
     try{
-      await navigator.clipboard.writeText(shareLink);
+      await copyText(ETSY_LINK);
+
       Swal.fire({
         title: 'Etsy Link Copied!',
         html: `
@@ -300,14 +341,12 @@ document.addEventListener('DOMContentLoaded',()=>{
         allowOutsideClick: false,
         allowEscapeKey: false,
         showCancelButton: false
-      }).then(async res => {
-        if (res.isConfirmed && navigator.share) {
-          const blob = await (await fetch($('vehicleShareImage').src)).blob();
-          await navigator.share({
-            files: [new File([blob], 'product.jpg', { type: blob.type })]
-          });
+      }).then(async res=>{
+        if(res.isConfirmed && navigator.share){
+          const blob=await(await fetch($('vehicleShareImage').src)).blob();
+          await navigator.share({files:[new File([blob],'product.jpg',{type:blob.type})]});
         }
-      });      
+      });
     }catch{alert('Failed to copy link');}
   };
   $('forwardFromVehicleShare').onclick=()=>{showStep('reviewFormPage');initStarRating();};
@@ -319,7 +358,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   initStarRating();
   $('submitReviewForm').onclick=()=>{
     const rev=$('reviewText').value.trim();
-    const nm =$(`reviewerName`).value.trim();
+    const nm=$('reviewerName').value.trim();
     if(selectedRating===0) return alert('Please select a star rating.');
     if(!rev) return alert('Please enter a review.');
     if(!nm)  return alert('Please enter your name.');
@@ -334,10 +373,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   /* review share */
   $('reviewShareButton').onclick=async ()=>{
     try{
-      const reviewTxt = document.getElementById('finalReviewText').value.trim();
-        if (reviewTxt) {
-       await navigator.clipboard.writeText(reviewTxt);
-      }
+      await copyText(ETSY_LINK);
 
       Swal.fire({
         title: 'Etsy Link Copied!',
@@ -369,25 +405,27 @@ document.addEventListener('DOMContentLoaded',()=>{
         allowOutsideClick: false,
         allowEscapeKey: false,
         showCancelButton: false
-      }).then(async res => {
-        if (res.isConfirmed && navigator.share) {
-          const blob = await (await fetch($('reviewShareImage').src)).blob();
-          await navigator.share({
-            files: [new File([blob], 'review.jpg', { type: blob.type })]
-          });
+      }).then(async res=>{
+        if(res.isConfirmed && navigator.share){
+          const blob=await(await fetch($('reviewShareImage').src)).blob();
+          await navigator.share({files:[new File([blob],'review.jpg',{type:blob.type})]});
         }
-      });      
+      });
     }catch{alert('Failed to copy link');}
   };
   $('forwardFromReviewShare').onclick=()=>showStep('googleReviewPage');
   $('backFromReviewShare').onclick=()=>{showStep('reviewFormPage');initStarRating();};
 
   /* google review */
-  $('googleReviewButton').onclick = async () => {
-    try {
-      const reviewTxt = $('finalReviewText') ? $('finalReviewText').value.trim() : $('reviewText').value.trim();
-      if (reviewTxt) await navigator.clipboard.writeText(reviewTxt);
-  
+  $('googleReviewButton').onclick=async ()=>{
+    try{
+      const reviewTxt =
+      (userReview && userReview.trim()) ||
+      ($('finalReviewText') ? $('finalReviewText').value.trim() : '') ||
+      ($('reviewText')      ? $('reviewText').value.trim()      : '');
+
+      if(reviewTxt) await copyText(reviewTxt);
+
       Swal.fire({
         title: 'Post Your Review on Google!',
         html: `
@@ -419,46 +457,45 @@ document.addEventListener('DOMContentLoaded',()=>{
             }
           </style>
         `,
-        showConfirmButton: true,
-        confirmButtonText: 'Got it, Paste Google Review',
-        allowOutsideClick: false,
-        allowEscapeKey: true,
-        didOpen: () => {
-          const container = $('customerImageContainer');
-          if (!originalPhotoUrl) {
-            container.innerHTML = '<p style="color:red;">Photo failed to load.</p>';
+        showConfirmButton:true,
+        confirmButtonText:'Got it, Paste Google Review',
+        allowOutsideClick:false,
+        allowEscapeKey:true,
+        didOpen:()=>{
+          const container=$('customerImageContainer');
+          if(!originalPhotoUrl){
+            container.innerHTML='<p style="color:red;">Photo failed to load.</p>';
             return;
           }
-          const img = new Image();
-          img.src = originalPhotoUrl;
-          img.onload = () => { container.innerHTML = ''; container.appendChild(img); };
-          img.onerror = () => { container.innerHTML = '<p style="color:red;">Photo failed to load.</p>'; };
+          const img=new Image();
+          img.src=originalPhotoUrl;
+          img.onload=()=>{container.innerHTML='';container.appendChild(img);};
+          img.onerror=()=>{container.innerHTML='<p style="color:red;">Photo failed to load.</p>';};
         }
-      }).then(res => {
-        if (res.isConfirmed) {
-          window.open('https://search.google.com/local/writereview?placeid=ChIJFRctSC6LMW0Rd0T5nvajzPw', '_blank');
+      }).then(res=>{
+        if(res.isConfirmed){
+          window.open('https://search.google.com/local/writereview?placeid=ChIJFRctSC6LMW0Rd0T5nvajzPw','_blank');
         }
       });
-  
-    } catch (err) {
+
+    }catch(err){
       console.error(err);
       alert('Failed to copy review');
     }
   };
-  
-  
+
   $('backFromGoogleReview').onclick=()=>showStep('reviewSharePage');
   $('forwardFromGoogleReview').onclick=()=>showStep('finalOptionsPage');
 
-  /* final options */
+  /* final options sync */
   const syncFinal=()=>{
     if(!$('finalOptionsPage').classList.contains('active'))return;
     $('finalVehicleShareImage').src=$('vehicleShareImage').src;
-    $('finalReviewShareImage').src =$('reviewShareImage').src;
-    $('finalReviewText').value     =userReview;
+    $('finalReviewShareImage').src=$('reviewShareImage').src;
+    $('finalReviewText').value=userReview;
   };
   new MutationObserver(syncFinal).observe(document.body,{attributes:true,attributeFilter:['class'],subtree:true});
 
-  /* initial share-image update */
+  /* initial share‑image update */
   updateShareImage();
 });
