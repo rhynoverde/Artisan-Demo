@@ -334,7 +334,11 @@ document.addEventListener('DOMContentLoaded',()=>{
   /* review share */
   $('reviewShareButton').onclick=async ()=>{
     try{
-      await navigator.clipboard.writeText('https://www.etsy.com/listing/1088793681/willow-and-wood-signature-scented-soy');
+      const reviewTxt = document.getElementById('finalReviewText').value.trim();
+        if (reviewTxt) {
+       await navigator.clipboard.writeText(reviewTxt);
+      }
+
       Swal.fire({
         title: 'Etsy Link Copied!',
         html: `
