@@ -50,6 +50,38 @@ async function uploadToImgbb(dataUrl){
   return (await res.json()).data.display_url;
 }
 
+/** Upload to Cloudinary (unsigned preset) */
+async function uploadToCloudinary(dataUrl){
+  const fd = new FormData();
+  fd.append('file', dataUrl);
+  fd.append('upload_preset', 'CustomerPhotos');  // your unsigned preset
+  const res = await fetch(
+    'https://api.cloudinary.com/v1_1/dag0w6gtd/image/upload',
+    { method: 'POST', body: fd }
+  );
+  if (!res.ok) throw new Error(`Cloudinary ${res.status}`);
+  const j = await res.json();
+  return j.secure_url;
+}
+
+/** Try ImgBB (3 s); on error or timeout → Cloudinary */
+async function uploadImageWithFallback(dataUrl){
+  try {
+    const url = await Promise.race([
+      uploadToImgbb(dataUrl),
+      new Promise((_, rej) => setTimeout(()=>rej(new Error('ImgBB timeout')), 3000))
+    ]);
+    console.log('✅ Uploaded via ImgBB:', url);
+    return url;
+  } catch(err) {
+    console.warn('⚠️ ImgBB failed, falling back to Cloudinary:', err);
+    const url = await uploadToCloudinary(dataUrl);
+    console.log('✅ Uploaded via Cloudinary:', url);
+    return url;
+  }
+}
+
+
 function showStep(id){
   qa('.step').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
@@ -152,9 +184,10 @@ function captureFromCamera(){
 
   stopCamera();
   showLoading($('vehicleShareImage'));
-  uploadToImgbb(crop.toDataURL('image/jpeg'))
-    .then(url=>{uploadedVehicleUrl=url;showStep('vehicleSharePage');})
-    .catch(e=>alert(e));
+  uploadImageWithFallback(crop.toDataURL('image/jpeg'))
+  .then(url=>{uploadedVehicleUrl=url;showStep('vehicleSharePage');})
+  .catch(e=>alert(e));
+
 }
 
 function loadImageForCrop(src,isUrl=false){
@@ -276,9 +309,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     const can=cropper.getCroppedCanvas({width:FINAL_WIDTH,height:FINAL_HEIGHT});
     cropper.destroy();cropper=null;
     showLoading($('vehicleShareImage'));
-    uploadToImgbb(can.toDataURL('image/jpeg'))
-      .then(url=>{uploadedVehicleUrl=url;showStep('vehicleSharePage');})
-      .catch(e=>alert(e));
+    uploadImageWithFallback(can.toDataURL('image/jpeg'))
+    .then(url=>{uploadedVehicleUrl=url;showStep('vehicleSharePage');})
+    .catch(e=>alert(e));
+
   };
   $('fitEntireButton').onclick=()=>{
     const src=uploadedVehicleUrl||$('cropImage').src;
@@ -294,9 +328,9 @@ document.addEventListener('DOMContentLoaded',()=>{
       const scF=Math.min(FINAL_WIDTH/img.width,FINAL_HEIGHT/img.height);
       ctx.drawImage(img,(FINAL_WIDTH-img.width*scF)/2,(FINAL_HEIGHT-img.height*scF)/2,img.width*scF,img.height*scF);
       showLoading($('vehicleShareImage'));
-      uploadToImgbb(cnv.toDataURL('image/jpeg'))
+      uploadImageWithFallback(cnv.toDataURL('image/jpeg'))
         .then(url=>{uploadedVehicleUrl=url;showStep('vehicleSharePage');})
-        .catch(e=>alert(e));
+        .catch(e=>alert(e));      
     };
     img.src=src;
   };
